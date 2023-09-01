@@ -101,16 +101,8 @@ add_library(lpeg SHARED ${LPEG_SRC})
 set_target_properties(lpeg PROPERTIES PREFIX "")
 
 # 拷贝其他文件
-# CMAKE_SOURCE_DIR
 message(STATUS "The value of CMAKE_SOURCE_DIR is: ${CMAKE_SOURCE_DIR}")
-add_custom_command(TARGET skynet
-    POST_BUILD
-    COMMAND mkdir -p lualib
-    COMMAND cp -r ${CMAKE_SOURCE_DIR}/skynet/lualib/* lualib/
-    COMMAND mkdir -p test
-    COMMAND cp -r ${CMAKE_SOURCE_DIR}/skynet/test/* test/
-    COMMAND mkdir -p service
-    COMMAND cp -r ${CMAKE_SOURCE_DIR}/skynet/service/* service/
-    COMMAND mkdir -p examples
-    COMMAND cp -r ${CMAKE_SOURCE_DIR}/skynet/examples/* examples/
-)
+file(COPY ${CMAKE_SOURCE_DIR}/skynet/lualib/ DESTINATION lualib NO_SOURCE_PERMISSIONS)
+file(COPY ${CMAKE_SOURCE_DIR}/skynet/test/ DESTINATION test NO_SOURCE_PERMISSIONS)
+file(COPY ${CMAKE_SOURCE_DIR}/skynet/service/ DESTINATION service NO_SOURCE_PERMISSIONS)
+file(COPY ${CMAKE_SOURCE_DIR}/skynet/examples/ DESTINATION examples NO_SOURCE_PERMISSIONS)
