@@ -32,3 +32,9 @@ cmake ..
 make
 ```
 
+
+## 参考
+
+- [cloudfreexiao/skynet/tree/windows](https://github.com/cloudfreexiao/skynet/tree/windows)
+- [dpull/skynet-mingw](https://github.com/dpull/skynet-mingw)
+
