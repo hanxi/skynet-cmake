@@ -1,0 +1,20 @@
+{
+  "OutputFoldersPerTargetSystem": {
+    "本地计算机": [
+      "build\\x64-Clang-Debug",
+      "out\\install\\x64-Clang-Debug",
+      "build\\x86-Clang-Debug",
+      "out\\install\\x86-Clang-Debug"
+    ]
+  },
+  "ExpandedNodes": [
+    "",
+    "\\3rd",
+    "\\3rd\\posix",
+    "\\3rd\\posix\\sys",
+    "\\3rd\\pthread-win32\\cmake",
+    "\\skynet\\skynet-src"
+  ],
+  "SelectedNode": "\\3rd\\posix\\sys\\socket.h",
+  "PreviewInSolutionExplorer": false
+}
