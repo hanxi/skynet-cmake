@@ -98,7 +98,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     message(STATUS "current platform: Windows")
     add_compile_definitions(NOUSE_JEMALLOC LUA_BUILD_AS_DLL)
     set(CMAKE_C_STANDARD 11)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion -Wno-implicit-function-declaration")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion -Wno-implicit-function-declaration -Wno-deprecated-declarations")
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
     # 把lua头文件添加到全局搜索路径
@@ -160,8 +160,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     target_link_libraries(md5 liblua)
 
     # 生成动态库 client.so
-    #add_library(client SHARED skynet/lualib-src/lua-clientsocket.c skynet/lualib-src/lua-crypt.c skynet/lualib-src/lsha1.c)
-    #set_target_properties(client PROPERTIES PREFIX "")
+    add_library(client SHARED skynet/lualib-src/lua-clientsocket.c skynet/lualib-src/lua-crypt.c skynet/lualib-src/lsha1.c)
+    target_link_libraries(client ws2_32 liblua libposix pthreadVC3)
 
     # 生成动态库 sproto.so
     add_library(sproto SHARED skynet/lualib-src/sproto/sproto.c skynet/lualib-src/sproto/lsproto.c)
@@ -172,7 +172,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(lpeg SHARED ${LPEG_SRC})
     target_link_libraries(lpeg liblua)
 
-    set_target_properties(lpeg sproto md5 bson skynetso PROPERTIES
+    set_target_properties(lpeg sproto client md5 bson skynetso PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         PREFIX ""
