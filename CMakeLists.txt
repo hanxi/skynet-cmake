@@ -108,7 +108,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     message(STATUS "The value of CMAKE_BINARY_DIR is: ${CMAKE_BINARY_DIR}")
 
     aux_source_directory(skynet/skynet-src LIB_SKYNET_SRC)
-    list(REMOVE_ITEM LIB_SKYNET_SRC skynet/lualib-src/skynet_main.c)
+    list(REMOVE_ITEM LIB_SKYNET_SRC skynet/skynet-src/skynet_main.c)
     aux_source_directory(skynet/3rd/lua LUA_LIB_SRC)
     list(REMOVE_ITEM LUA_LIB_SRC "skynet/3rd/lua/lua.c" "skynet/3rd/lua/luac.c" "skynet/3rd/lua/onelua.c")
     aux_source_directory(3rd/posix POSIX_SRC)
