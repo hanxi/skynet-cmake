@@ -217,6 +217,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     # 添加编译选项
     add_compile_options(-g)
 
+    message(STATUS "The value of CMAKE_BINARY_DIR is: ${CMAKE_BINARY_DIR}")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR})
+
     # 编译 skynet 可执行文件
     aux_source_directory(skynet/skynet-src SKYNET_SRC)
     aux_source_directory(skynet/3rd/lua LUA_LIB_SRC)
@@ -232,6 +235,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
     # 重新设置动态库输出路径
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
     # 生成动态库 skynet.so
     set(LUA_CLIB_SKYNET_SRC
@@ -282,6 +286,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
     # 重新设置动态库输出路径
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/cservice)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
     # 生成c服务
     file(GLOB CSERVICE_FILE_LIST "skynet/service-src/*.c")
