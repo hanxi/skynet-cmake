@@ -21,7 +21,7 @@ git submodule update --init
 
 使用 vs2022 打开此工程目录 skynet-cmake (即CMakeLists.txt 文件所在目录）
 
-## 在 Linux 下
+## 在 Linux MacOSX 下
 
 没多大必要，直接用 make 可能更方便。
 
