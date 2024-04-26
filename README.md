@@ -28,10 +28,11 @@ git submodule update --init
 ```bash
 mkdir build
 cd build
-cmake ..
-make
+    Makefile:
+        cmake ../
+    Xcode:
+        cmake -G Xcode ../
 ```
-
 
 ## 参考
 
