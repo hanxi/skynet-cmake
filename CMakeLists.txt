@@ -176,7 +176,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     target_link_libraries(client ws2_32 liblua libposix pthreadVC3)
 
     # 生成动态库 sproto.so
-    add_library(sproto SHARED skynet/lualib-src/sproto/sproto.c skynet/lualib-src/sproto/lsproto.c)
+    aux_source_directory(skynet/lualib-src/sproto SPROTO_SRC)
+    add_library(sproto SHARED ${SPROTO_SRC})
     target_link_libraries(sproto liblua)
 
     # 生成动态库 lpeg.so
