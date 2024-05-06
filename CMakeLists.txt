@@ -8,13 +8,15 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+find_package(OpenSSL REQUIRED)
+# 把lua头文件添加到全局搜索路径
+include_directories(skynet/3rd/lua ${OPENSSL_INCLUDE_DIR})
+
 # Linux
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     message(STATUS "current platform: Linux")
     add_compile_definitions(NOUSE_JEMALLOC LUA_USE_LINUX LUA_USE_READLINE)
 
-    # 把lua头文件添加到全局搜索路径
-    include_directories(skynet/3rd/lua)
     # 添加编译选项
     add_compile_options(-g)
 
@@ -86,13 +88,19 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     target_link_libraries(client pthread)
 
     # 生成动态库 sproto.so
-    add_library(sproto SHARED skynet/lualib-src/sproto/sproto.c skynet/lualib-src/sproto/lsproto.c)
+    aux_source_directory(skynet/lualib-src/sproto SPROTO_SRC)
+    add_library(sproto SHARED ${SPROTO_SRC})
 
     # 生成动态库 lpeg.so
     aux_source_directory(skynet/3rd/lpeg LPEG_SRC)
     add_library(lpeg SHARED ${LPEG_SRC})
 
-    set_target_properties(lpeg sproto client md5 bson PROPERTIES
+    # 生成动态库 ltls.so
+    add_library(ltls SHARED skynet/lualib-src/ltls.c)
+    target_link_libraries(ltls OpenSSL::SSL)
+
+    set_target_properties(lpeg sproto client md5 bson ltls
+        PROPERTIES
         PREFIX ""
         SUFFIX .so
     )
@@ -106,7 +114,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
     # 把lua头文件添加到全局搜索路径
-    include_directories(skynet/3rd/lua 3rd/posix 3rd/pthread-win32 skynet/skynet-src)
+    include_directories(3rd/posix 3rd/pthread-win32 skynet/skynet-src)
     add_compile_options(/FI ${CMAKE_SOURCE_DIR}/3rd/posix/unistd.h)
 
     message(STATUS "The value of CMAKE_BINARY_DIR is: ${CMAKE_BINARY_DIR}")
@@ -168,7 +176,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     target_link_libraries(client ws2_32 liblua libposix pthreadVC3)
 
     # 生成动态库 sproto.so
-    add_library(sproto SHARED skynet/lualib-src/sproto/sproto.c skynet/lualib-src/sproto/lsproto.c)
+    aux_source_directory(skynet/lualib-src/sproto SPROTO_SRC)
+    add_library(sproto SHARED ${SPROTO_SRC})
     target_link_libraries(sproto liblua)
 
     # 生成动态库 lpeg.so
@@ -176,7 +185,12 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(lpeg SHARED ${LPEG_SRC})
     target_link_libraries(lpeg liblua)
 
-    set_target_properties(lpeg sproto client md5 bson skynetso PROPERTIES
+    # 生成动态库 ltls.so
+    add_library(ltls SHARED skynet/lualib-src/ltls.c)
+    target_link_libraries(ltls liblua OpenSSL::SSL)
+
+    set_target_properties(lpeg sproto client md5 bson skynetso ltls
+        PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         PREFIX ""
@@ -213,7 +227,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     set(CMAKE_SHARED_LINKER_FLAGS " -fPIC -dynamiclib -Wl,-undefined,dynamic_lookup")
 
     # 把lua头文件添加到全局搜索路径
-    include_directories(skynet/3rd/lua)
     # 添加编译选项
     add_compile_options(-g)
 
@@ -273,13 +286,19 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     target_link_libraries(client pthread)
 
     # 生成动态库 sproto.so
-    add_library(sproto SHARED skynet/lualib-src/sproto/sproto.c skynet/lualib-src/sproto/lsproto.c)
+    aux_source_directory(skynet/lualib-src/sproto SPROTO_SRC)
+    add_library(sproto SHARED ${SPROTO_SRC})
 
     # 生成动态库 lpeg.so
     aux_source_directory(skynet/3rd/lpeg LPEG_SRC)
     add_library(lpeg SHARED ${LPEG_SRC})
-  
-    set_target_properties(lpeg sproto client md5 bson PROPERTIES
+
+    # 生成动态库 ltls.so
+    add_library(ltls SHARED skynet/lualib-src/ltls.c)
+    target_link_libraries(ltls OpenSSL::SSL)
+
+    set_target_properties(lpeg sproto client md5 bson ltls
+        PROPERTIES
         PREFIX ""
         SUFFIX .so
     )

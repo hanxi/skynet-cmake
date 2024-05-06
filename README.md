@@ -10,6 +10,7 @@
 
 - [安装CMake](https://learn.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio?view=msvc-170)
 - [安装Clang](https://learn.microsoft.com/en-us/cpp/build/clang-support-cmake?view=msvc-170)
+- [安装vcpkg](https://github.com/microsoft/vcpkg/blob/master/README_zh_CN.md)
 
 下载工程和更新 submodule
 
