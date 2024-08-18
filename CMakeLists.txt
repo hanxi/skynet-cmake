@@ -10,7 +10,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(OpenSSL REQUIRED)
 # 把lua头文件添加到全局搜索路径
-include_directories(skynet/3rd/lua ${OPENSSL_INCLUDE_DIR})
+include_directories(skynet/3rd/lua
+                    ${OPENSSL_INCLUDE_DIR})
 
 # Linux
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -99,7 +100,21 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     add_library(ltls SHARED skynet/lualib-src/ltls.c)
     target_link_libraries(ltls OpenSSL::SSL)
 
+    # 生成动态库 cjson.so
+    add_library(cjson SHARED 3rd/lua-cjson/lua_cjson.c 
+                3rd/lua-cjson/fpconv.c 
+                3rd/lua-cjson/strbuf.c )
+
+    # 生成动态库 pb.so
+    aux_source_directory(3rd/lua-protobuf PB_SRC)
+    add_library(pb SHARED ${PB_SRC})
+
+    # 生成动态库 lfs.so
+    aux_source_directory(3rd/luafilesystem LFS_SRC)
+    add_library(lfs SHARED ${LFS_SRC})
+
     set_target_properties(lpeg sproto client md5 bson ltls
+        cjson pb lfs
         PROPERTIES
         PREFIX ""
         SUFFIX .so
@@ -189,7 +204,21 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(ltls SHARED skynet/lualib-src/ltls.c)
     target_link_libraries(ltls liblua OpenSSL::SSL)
 
+    # 生成动态库 cjson.so
+    add_library(cjson SHARED 3rd/lua-cjson/lua_cjson.c 
+                3rd/lua-cjson/fpconv.c 
+                3rd/lua-cjson/strbuf.c )
+
+    # 生成动态库 pb.so
+    aux_source_directory(3rd/lua-protobuf PB_SRC)
+    add_library(pb SHARED ${PB_SRC})
+
+    # 生成动态库 lfs.so
+    aux_source_directory(3rd/luafilesystem LFS_SRC)
+    add_library(lfs SHARED ${LFS_SRC})
+
     set_target_properties(lpeg sproto client md5 bson skynetso ltls
+        cjson pb lfs
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
@@ -297,7 +326,21 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     add_library(ltls SHARED skynet/lualib-src/ltls.c)
     target_link_libraries(ltls OpenSSL::SSL)
 
+    # 生成动态库 cjson.so
+    add_library(cjson SHARED 3rd/lua-cjson/lua_cjson.c 
+                3rd/lua-cjson/fpconv.c 
+                3rd/lua-cjson/strbuf.c )
+
+    # 生成动态库 pb.so
+    aux_source_directory(3rd/lua-protobuf PB_SRC)
+    add_library(pb SHARED ${PB_SRC})
+
+    # 生成动态库 lfs.so
+    aux_source_directory(3rd/luafilesystem LFS_SRC)
+    add_library(lfs SHARED ${LFS_SRC})
+
     set_target_properties(lpeg sproto client md5 bson ltls
+        cjson pb lfs
         PROPERTIES
         PREFIX ""
         SUFFIX .so
