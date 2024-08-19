@@ -208,14 +208,17 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(cjson SHARED 3rd/lua-cjson/lua_cjson.c 
                 3rd/lua-cjson/fpconv.c 
                 3rd/lua-cjson/strbuf.c )
+    target_link_libraries(cjson liblua)
 
     # 生成动态库 pb.so
     aux_source_directory(3rd/lua-protobuf PB_SRC)
     add_library(pb SHARED ${PB_SRC})
+    target_link_libraries(pb liblua)
 
     # 生成动态库 lfs.so
     aux_source_directory(3rd/luafilesystem LFS_SRC)
     add_library(lfs SHARED ${LFS_SRC})
+    target_link_libraries(lfs liblua)
 
     set_target_properties(lpeg sproto client md5 bson skynetso ltls
         cjson pb lfs
