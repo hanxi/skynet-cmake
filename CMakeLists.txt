@@ -113,8 +113,12 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     aux_source_directory(3rd/luafilesystem LFS_SRC)
     add_library(lfs SHARED ${LFS_SRC})
 
+    # 生成动态库 fmt.so
+    aux_source_directory(3rd/lua-fmt FMT_SRC)
+    add_library(fmt SHARED ${FMT_SRC})
+
     set_target_properties(lpeg sproto client md5 bson ltls
-        cjson pb lfs
+        cjson pb lfs fmt
         PROPERTIES
         PREFIX ""
         SUFFIX .so
@@ -220,8 +224,13 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(lfs SHARED ${LFS_SRC})
     target_link_libraries(lfs liblua)
 
+    # 生成动态库 fmt.so
+    aux_source_directory(3rd/lua-fmt FMT_SRC)
+    add_library(fmt SHARED ${FMT_SRC})
+    target_link_libraries(fmt liblua)
+
     set_target_properties(lpeg sproto client md5 bson skynetso ltls
-        cjson pb lfs
+        cjson pb lfs fmt
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
@@ -342,8 +351,12 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     aux_source_directory(3rd/luafilesystem LFS_SRC)
     add_library(lfs SHARED ${LFS_SRC})
 
+    # 生成动态库 fmt.so
+    aux_source_directory(3rd/lua-fmt FMT_SRC)
+    add_library(fmt SHARED ${FMT_SRC})
+
     set_target_properties(lpeg sproto client md5 bson ltls
-        cjson pb lfs
+        cjson pb lfs fmt
         PROPERTIES
         PREFIX ""
         SUFFIX .so

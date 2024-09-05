@@ -340,7 +340,7 @@ static uint64_t lpb_tointegerx(lua_State *L, int idx, int *isint) {
     } else {
         for (; *s != '\0'; ++s) {
             int n = lpb_hexchar(*s);
-            if (n < 0 || n > 10) break;
+            if (n < 0 || n > 9) break;
             v = v * 10 + n;
         }
     }
@@ -1031,7 +1031,7 @@ static int lpb_unpackfmt(lua_State *L, int idx, const char *fmt, pb_Slice *s) {
         if (lpb_unpackloc(L, &idx, top, *fmt, s, &rets))
             continue;
         if (s->p >= s->end) return lua_pushnil(L), rets + 1;
-        luaL_checkstack(L, 1, "too many values");
+        luaL_checkstack(L, 5, "too many values");
         if (!lpb_unpackscalar(L, &idx, top, *fmt, s)) {
             argcheck(L, (type = lpb_typefmt(*fmt)) >= 0,
                     1, "invalid formater: '%c'", *fmt);
@@ -1231,21 +1231,20 @@ static const pb_Field *lpb_field(lua_State *L, int idx, const pb_Type *t) {
 
 static int Lpb_load(lua_State *L) {
     lpb_State *LS = lpb_lstate(L);
-    pb_Slice s = lpb_checkslice(L, 1);
-    int r = pb_load(&LS->local, &s);
-    lua_pushboolean(L, r == PB_OK);
-    lua_pushinteger(L, pb_pos(s)+1);
-    return 2;
-}
 
-static int Lpb_load_unsafe(lua_State *L) {
-    lpb_State *LS = lpb_lstate(L);
-    const char *data = (const char *)lua_touserdata(L, 1);
-    size_t size = (size_t)luaL_checkinteger(L, 2);
+    size_t size = 0;
+    const char* data = NULL;
+    if (lua_type(L, 1) == LUA_TSTRING) {
+        data = luaL_checklstring(L, 1, &size);
+    }
+    else {
+        data = (const char*)lua_touserdata(L, 1);
+        size = luaL_checkinteger(L, 2);
+    }
+
     pb_Slice s = pb_lslice(data, size);
-    int r;
-    if (data == NULL) lpb_typeerror(L, 1, "userdata");
-    r = pb_load(&LS->local, &s);
+
+    int r = pb_load(&LS->local, &s);
     lua_pushboolean(L, r == PB_OK);
     lua_pushinteger(L, pb_pos(s)+1);
     return 2;
@@ -1725,12 +1724,12 @@ static void lpb_encode_onefield(lpb_Env *e, const pb_Type *t, const pb_Field *f,
     else if (f->repeated)
         lpbE_repeated(e, f, idx);
     else if (!f->type || !f->type->is_dead)
-        lpbE_tagfield(e, f, t->is_proto3 && !f->oneof_idx, idx);
+        lpbE_tagfield(e, f, t->is_proto3 && !f->oneof_idx && f->type_id != PB_Tmessage, idx);
 }
 
 static void lpbE_encode(lpb_Env *e, const pb_Type *t, int idx) {
     lua_State *L = e->L;
-    luaL_checkstack(L, 3, "message too many levels");
+    luaL_checkstack(L, 5, "message too many levels");
     if (e->LS->encode_order) {
         const pb_Field *f = NULL;
         while (pb_nextfield(t, &f)) {
@@ -1825,7 +1824,7 @@ static void lpb_usedechooks(lua_State *L, lpb_State *LS, const pb_Type *t) {
 
 static void lpb_pushtypetable(lua_State *L, lpb_State *LS, const pb_Type *t) {
     int mode = LS->encode_mode;
-    luaL_checkstack(L, 2, "too many levels");
+    luaL_checkstack(L, 5, "too many levels");
     lpb_newmsgtable(L, t);
     switch (t->is_proto3 && mode == LPB_DEFDEF ? LPB_COPYDEF : mode) {
     case LPB_COPYDEF:
@@ -1922,7 +1921,7 @@ static void lpbD_repeated(lpb_Env *e, const pb_Field *f, uint32_t tag) {
     if (pb_gettype(tag) != PB_TBYTES
             || (!f->packed && pb_wtypebytype(f->type_id) == PB_TBYTES)) {
         lpbD_field(e, f, tag);
-        lua_rawseti(L, -2, (lua_Integer)lua_rawlen(L, -2) + 1);
+        lua_rawseti(L, -2, (int)lua_rawlen(L, -2) + 1);
     } else {
         int len = (int)lua_rawlen(L, -1);
         pb_Slice p, *s = e->s;
@@ -1938,7 +1937,7 @@ static int lpbD_message(lpb_Env *e, const pb_Type *t) {
     lua_State *L = e->L;
     pb_Slice *s = e->s;
     uint32_t tag;
-    luaL_checkstack(L, t->field_count * 2, "not enough stack space for fields");
+    luaL_checkstack(L, 5, "not enough stack space for fields");
     while (pb_readvarint32(s, &tag)) {
         const pb_Field *f = pb_field(t, pb_gettag(tag));
         if (f == NULL)
@@ -1986,7 +1985,8 @@ static int Lpb_decode(lua_State *L) {
     const char* data = NULL;
     if (lua_type(L, 2) == LUA_TSTRING) {
         data = luaL_checklstring(L, 2, &size);
-    } else {
+    }
+    else {
         data = (const char*)lua_touserdata(L, 2);
         size = luaL_checkinteger(L, 3);
     }
@@ -1995,7 +1995,7 @@ static int Lpb_decode(lua_State *L) {
 
 static int Lpb_share_state(lua_State* L) {
     if (NULL != global_state) {
-        return luaL_error(L, "already share pbstate");
+        return luaL_error(L, "already shared pbstate");
     }
     lpb_State* LS = lpb_lstate(L);
     global_state = &LS->local;
@@ -2156,56 +2156,8 @@ LUALIB_API int luaopen_pb(lua_State *L) {
     return 1;
 }
 
-static int Lpb_decode_unsafe(lua_State *L) {
-    const char *data = (const char *)lua_touserdata(L, 2);
-    size_t size = (size_t)luaL_checkinteger(L, 3);
-    if (data == NULL) lpb_typeerror(L, 2, "userdata");
-    return lpbD_decode(L, pb_lslice(data, size), 4);
-}
-
-static int Lpb_slice_unsafe(lua_State *L) {
-    const char *data = (const char *)lua_touserdata(L, 1);
-    size_t size = (size_t)luaL_checkinteger(L, 2);
-    if (data == NULL) lpb_typeerror(L, 1, "userdata");
-    return lpb_newslice(L, data, size);
-}
-
-static int Lpb_touserdata(lua_State *L) {
-    pb_Slice s = lpb_toslice(L, 1);
-    lua_pushlightuserdata(L, (void*)s.p);
-    lua_pushinteger(L, pb_len(s));
-    return 2;
-}
-
-static int Lpb_use(lua_State *L) {
-    const char *opts[] = { "global", "local", NULL };
-    lpb_State *LS = lpb_lstate(L);
-    const pb_State *GS = global_state;
-    switch (luaL_checkoption(L, 1, NULL, opts)) {
-    case 0: if (GS) LS->state = GS; break;
-    case 1: LS->state = &LS->local; break;
-    }
-    lua_pushboolean(L, GS != NULL);
-    return 1;
-}
-
-LUALIB_API int luaopen_pb_unsafe(lua_State *L) {
-    luaL_Reg libs[] = {
-        { "load",       Lpb_load_unsafe   },
-        { "decode",     Lpb_decode_unsafe },
-        { "slice",      Lpb_slice_unsafe  },
-        { "touserdata", Lpb_touserdata    },
-        { "use",        Lpb_use           },
-        { NULL, NULL }
-    };
-    luaL_newlib(L, libs);
-    return 1;
-}
-
-
 PB_NS_END
 
-/* cc: flags+='-O3 -ggdb -pedantic -std=c90 -Wall -Wextra --coverage'
+/* cc: flags+='-O3 -ggdb -pedantic -std=c90 -Wall -Wextra'
  * maccc: flags+='-ggdb -shared -undefined dynamic_lookup' output='pb.so'
  * win32cc: flags+='-s -mdll -DLUA_BUILD_AS_DLL ' output='pb.dll' libs+='-llua54' */
-
