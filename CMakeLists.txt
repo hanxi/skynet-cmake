@@ -117,8 +117,12 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     aux_source_directory(3rd/lua-fmt FMT_SRC)
     add_library(fmt SHARED ${FMT_SRC})
 
+    # 生成动态库 skiplist.so
+    aux_source_directory(3rd/lua-zset SKIP_LIST_SRC)
+    add_library(skiplist SHARED ${SKIP_LIST_SRC})
+
     set_target_properties(lpeg sproto client md5 bson ltls
-        cjson pb lfs fmt
+        cjson pb lfs fmt skiplist
         PROPERTIES
         PREFIX ""
         SUFFIX .so
@@ -229,8 +233,13 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(fmt SHARED ${FMT_SRC})
     target_link_libraries(fmt liblua)
 
+    # 生成动态库 skiplist.so
+    aux_source_directory(3rd/lua-zset SKIP_LIST_SRC)
+    add_library(skiplist SHARED ${SKIP_LIST_SRC})
+    target_link_libraries(skiplist liblua)
+
     set_target_properties(lpeg sproto client md5 bson skynetso ltls
-        cjson pb lfs fmt
+        cjson pb lfs fmt skiplist
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
@@ -355,8 +364,12 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     aux_source_directory(3rd/lua-fmt FMT_SRC)
     add_library(fmt SHARED ${FMT_SRC})
 
+    # 生成动态库 skiplist.so
+    aux_source_directory(3rd/lua-zset SKIP_LIST_SRC)
+    add_library(skiplist SHARED ${SKIP_LIST_SRC})
+
     set_target_properties(lpeg sproto client md5 bson ltls
-        cjson pb lfs fmt
+        cjson pb lfs fmt skiplist
         PROPERTIES
         PREFIX ""
         SUFFIX .so
@@ -388,3 +401,4 @@ file(COPY ${CMAKE_SOURCE_DIR}/skynet/lualib/ DESTINATION lualib NO_SOURCE_PERMIS
 file(COPY ${CMAKE_SOURCE_DIR}/skynet/test/ DESTINATION test NO_SOURCE_PERMISSIONS)
 file(COPY ${CMAKE_SOURCE_DIR}/skynet/service/ DESTINATION service NO_SOURCE_PERMISSIONS)
 file(COPY ${CMAKE_SOURCE_DIR}/skynet/examples/ DESTINATION examples NO_SOURCE_PERMISSIONS)
+file(COPY ${CMAKE_SOURCE_DIR}/3rd/luaext/ DESTINATION luaext NO_SOURCE_PERMISSIONS)
