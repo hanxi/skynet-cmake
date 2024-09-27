@@ -1,5 +1,5 @@
-stringx = require("stringx")
-tablex = require("tablex")
+stringx = require("misc.stringx")
+tablex = require("misc.tablex")
 
 require("luaoop.class")
 require("luaoop.enum")
