@@ -8,6 +8,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# openssl 3.*
 find_package(OpenSSL REQUIRED)
 # 把lua头文件添加到全局搜索路径
 include_directories(skynet/3rd/lua
