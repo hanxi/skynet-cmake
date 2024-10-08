@@ -1,8 +1,8 @@
 -- Various utilities for Jumper top-level modules
 
 -- Dependencies
-local Path = require ("sdk.decision.pathFinder.path")
-local Node = require ("sdk.decision.pathFinder.node")
+local Path = require ("finder.path")
+local Node = require ("finder.node")
 
 local Utils = {}
 

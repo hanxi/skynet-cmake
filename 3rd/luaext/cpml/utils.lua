@@ -12,9 +12,9 @@ local utils   = {}
 
 -- reimplementation of math.frexp, due to its removal from Lua 5.3 :(
 -- courtesy of airstruck
-local log2 = log(2)
+local log2    = log(2)
 
-local frexp = math.frexp or function(x)
+local frexp   = function(x)
 	if x == 0 then return 0, 0 end
 	local e = floor(log(abs(x)) / log2 + 1)
 	return x / 2 ^ e, e
@@ -111,7 +111,7 @@ utils.round = private.round
 -- @return number
 function utils.wrap(value, limit)
 	if value < 0 then
-		value = value + utils.round(((-value/limit)+1))*limit
+		value = value + utils.round(((-value / limit) + 1)) * limit
 	end
 	return value % limit
 end

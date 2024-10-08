@@ -303,7 +303,7 @@ function color.gamma_to_linear(r, g, b, a)
 		elseif c <= 0.04045 then
 			return c / 12.92
 		else
-			return math.pow((c + 0.055) / 1.055, 2.4)
+			return ((c + 0.055) / 1.055) ^ 2.4
 		end
 	end
 
@@ -330,7 +330,7 @@ function color.linear_to_gamma(r, g, b, a)
 		elseif c < 0.0031308 then
 			return c * 12.92
 		else
-			return 1.055 * math.pow(c, 0.41666) - 0.055
+			return 1.055 * (c ^ 0.41666) - 0.055
 		end
 	end
 

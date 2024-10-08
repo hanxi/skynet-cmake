@@ -24,7 +24,7 @@
 -- | Day of week  | 1-27            |       , - *        |
 -- +-----------------------------------------------------+
 --
-local skynet = require("skynet")
+local timex = require("misc.timex")
 
 local Crontab = {}
 
@@ -32,33 +32,6 @@ local parase_cache = {}
 
 local MAX_TIMESTAMP = 2 ^ 31 - 1
 local MAX_ITERATIONS = MAX_TIMESTAMP
-
-local function now()
-    return math.floor(skynet.time())
-end
-
-local function get_week_day(time)
-    local weekDay = os.date("%w", time or now())
-    return weekDay == "0" and 7 or tonumber(weekDay)
-end
-
---- 获取时区
-local _timezone = tonumber(os.date("%z", 0)) / 100
-local function get_time_zone()
-    return _timezone
-end
-
--- 获取距 2000/1/3日 的周数 用来处理单双周的判断
----@param time integer
----@return integer
-local function get_sys_week_num(time)
-    time = time or now()
-    -- 约定UTC 0 时区的 year = 2000,month=1,day=3,hour=0 这个时间为第一个双周的开始
-    local timeZone = get_time_zone() or 0
-    local difTime = time - (946857600 - (timeZone * 3600)) -- 946857600(UTC0点)
-    local week = math.floor(difTime / (86400 * 7))
-    return week
-end
 
 --- 取下一次触发时间点
 ---@param start_timestamp number 开始的时间戳
@@ -101,7 +74,7 @@ function Crontab.get_parase(string_cron)
 end
 
 function Crontab.unpack_timestamp(timestamp)
-    timestamp = timestamp or now()
+    timestamp = timestamp or timex.now()
     local t = os.date("*t", timestamp)
     return t.year, t.month, t.day, t.hour, t.min, t.sec
 end
@@ -430,7 +403,7 @@ local function get_next_occurrence_till(self, base_timestamp, end_timestamp)
             if year >= endYear and month >= endMonth and day >= endDay then
                 return false
             end
----@diagnostic disable-next-line: cast-local-type
+            ---@diagnostic disable-next-line: cast-local-type
             day = nil
         else
             break
@@ -448,13 +421,13 @@ local function get_next_occurrence_till(self, base_timestamp, end_timestamp)
     end
 
     -- Day of week
-    local curWeek = get_week_day(next_timestamp)
-    local curWeekNum = get_sys_week_num(next_timestamp)
+    local curWeek = timex.get_week_day(next_timestamp)
+    local curWeekNum = timex.get_sys_week_num(next_timestamp)
     if curWeekNum % 2 == 0 then
----@diagnostic disable-next-line: cast-local-type
+    ---@diagnostic disable-next-line: cast-local-type
         curWeekNum = tonumber("2" .. curWeek)
     else
----@diagnostic disable-next-line: cast-local-type
+    ---@diagnostic disable-next-line: cast-local-type
         curWeekNum = tonumber("1" .. curWeek)
     end
 

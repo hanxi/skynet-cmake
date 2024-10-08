@@ -39,6 +39,7 @@ end
 
 -- Do the check to see if JIT is enabled. If so use the optimized FFI structs.
 local status, ffi
+---@diagnostic disable-next-line: undefined-global
 if type(jit) == "table" and jit.status() then
 	--  status, ffi = pcall(require, "ffi")
 	if status then
@@ -327,7 +328,7 @@ function mat4.clone(a)
 	return new(a)
 end
 
-function mul_internal(out, a, b)
+local function mul_internal(out, a, b)
 	tm4[1]  = b[1] * a[1] + b[2] * a[5] + b[3] * a[9] + b[4] * a[13]
 	tm4[2]  = b[1] * a[2] + b[2] * a[6] + b[3] * a[10] + b[4] * a[14]
 	tm4[3]  = b[1] * a[3] + b[2] * a[7] + b[3] * a[11] + b[4] * a[15]
@@ -724,17 +725,17 @@ function mat4.is_mat4(a)
 	return true
 end
 
---- Return whether any component is NaN
--- @tparam mat4 a Matrix to be tested
--- @treturn boolean if any component is NaN
-function vec2.has_nan(a)
-	for i = 1, 16 do
-		if private.is_nan(a[i]) then
-			return true
-		end
-	end
-	return false
-end
+-- --- Return whether any component is NaN
+-- -- @tparam mat4 a Matrix to be tested
+-- -- @treturn boolean if any component is NaN
+-- function vec2.has_nan(a)
+-- 	for i = 1, 16 do
+-- 		if private.is_nan(a[i]) then
+-- 			return true
+-- 		end
+-- 	end
+-- 	return false
+-- end
 
 --- Return a formatted string.
 -- @tparam mat4 a Matrix to be turned into a string
@@ -791,7 +792,7 @@ function mat4.to_quat(a)
 		w
 	)
 
-	return q:normalize(q)
+	return q:normalize()
 end
 
 -- http://www.crownandcutlass.com/features/technicaldetails/frustum.html
