@@ -11,7 +11,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # openssl 3.*
 find_package(OpenSSL REQUIRED)
 # 把lua头文件添加到全局搜索路径
-include_directories(skynet/3rd/lua
+include_directories(skynet/3rd/lua/
+                    3rd/core/
                     ${OPENSSL_INCLUDE_DIR})
 
 # Linux
@@ -101,11 +102,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     add_library(ltls SHARED skynet/lualib-src/ltls.c)
     target_link_libraries(ltls OpenSSL::SSL)
 
-    # 生成动态库 cjson.so
-    add_library(cjson SHARED 3rd/lua-cjson/lua_cjson.c 
-                3rd/lua-cjson/fpconv.c 
-                3rd/lua-cjson/strbuf.c )
-
     # 生成动态库 pb.so
     aux_source_directory(3rd/lua-protobuf PB_SRC)
     add_library(pb SHARED ${PB_SRC})
@@ -115,15 +111,19 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     add_library(lfs SHARED ${LFS_SRC})
 
     # 生成动态库 fmt.so
-    aux_source_directory(3rd/lua-fmt FMT_SRC)
+    aux_source_directory(3rd/lfmt FMT_SRC)
     add_library(fmt SHARED ${FMT_SRC})
 
     # 生成动态库 skiplist.so
     aux_source_directory(3rd/lua-zset SKIP_LIST_SRC)
     add_library(skiplist SHARED ${SKIP_LIST_SRC})
 
+    # 生成动态库 yyjson.so
+    aux_source_directory(3rd/lua-yyjson YYJSON_SRC)
+    add_library(yyjson SHARED ${YYJSON_SRC})
+
     set_target_properties(lpeg sproto client md5 bson ltls
-        cjson pb lfs fmt skiplist
+        pb lfs fmt skiplist yyjson
         PROPERTIES
         PREFIX ""
         SUFFIX .so
@@ -209,15 +209,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(lpeg SHARED ${LPEG_SRC})
     target_link_libraries(lpeg liblua)
 
-    # 生成动态库 ltls.so
-    add_library(ltls SHARED skynet/lualib-src/ltls.c)
-    target_link_libraries(ltls liblua OpenSSL::SSL)
-
-    # 生成动态库 cjson.so
-    add_library(cjson SHARED 3rd/lua-cjson/lua_cjson.c 
-                3rd/lua-cjson/fpconv.c 
-                3rd/lua-cjson/strbuf.c )
-    target_link_libraries(cjson liblua)
+    # # 生成动态库 ltls.so
+    # add_library(ltls SHARED skynet/lualib-src/ltls.c)
+    # target_link_libraries(ltls liblua OpenSSL::SSL)
 
     # 生成动态库 pb.so
     aux_source_directory(3rd/lua-protobuf PB_SRC)
@@ -230,7 +224,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     target_link_libraries(lfs liblua)
 
     # 生成动态库 fmt.so
-    aux_source_directory(3rd/lua-fmt FMT_SRC)
+    aux_source_directory(3rd/lfmt FMT_SRC)
     add_library(fmt SHARED ${FMT_SRC})
     target_link_libraries(fmt liblua)
 
@@ -239,8 +233,13 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(skiplist SHARED ${SKIP_LIST_SRC})
     target_link_libraries(skiplist liblua)
 
+    # 生成动态库 yyjson.so
+    aux_source_directory(3rd/lua-yyjson YYJSON_SRC)
+    add_library(yyjson SHARED ${YYJSON_SRC})
+    target_link_libraries(yyjson liblua)
+
     set_target_properties(lpeg sproto client md5 bson skynetso ltls
-        cjson pb lfs fmt skiplist
+        pb lfs fmt skiplist yyjson
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
@@ -348,11 +347,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     add_library(ltls SHARED skynet/lualib-src/ltls.c)
     target_link_libraries(ltls OpenSSL::SSL)
 
-    # 生成动态库 cjson.so
-    add_library(cjson SHARED 3rd/lua-cjson/lua_cjson.c 
-                3rd/lua-cjson/fpconv.c 
-                3rd/lua-cjson/strbuf.c )
-
     # 生成动态库 pb.so
     aux_source_directory(3rd/lua-protobuf PB_SRC)
     add_library(pb SHARED ${PB_SRC})
@@ -362,15 +356,19 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     add_library(lfs SHARED ${LFS_SRC})
 
     # 生成动态库 fmt.so
-    aux_source_directory(3rd/lua-fmt FMT_SRC)
+    aux_source_directory(3rd/lfmt FMT_SRC)
     add_library(fmt SHARED ${FMT_SRC})
 
     # 生成动态库 skiplist.so
     aux_source_directory(3rd/lua-zset SKIP_LIST_SRC)
     add_library(skiplist SHARED ${SKIP_LIST_SRC})
 
+    # 生成动态库 yyjson.so
+    aux_source_directory(3rd/lua-yyjson YYJSON_SRC)
+    add_library(yyjson SHARED ${YYJSON_SRC})
+
     set_target_properties(lpeg sproto client md5 bson ltls
-        cjson pb lfs fmt skiplist
+        pb lfs fmt skiplist yyjson
         PROPERTIES
         PREFIX ""
         SUFFIX .so

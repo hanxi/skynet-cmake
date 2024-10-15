@@ -245,13 +245,13 @@ static void fmt_addzeroing(fmt_State *S, const fmt_Spec *d, size_t len) {
     if (len > (size_t)S->zeroing) {
         int pref = (len - S->zeroing) % 4;
         if (pref > 2) *s++ = '0', luaL_addsize(&S->B, 1);
-        if (pref > 0) *s++ = '0', *s++ = d->grouping, luaL_addsize(&S->B, 2);
+        if (pref > 0) *s++ = '0', *s++ = (char)d->grouping, luaL_addsize(&S->B, 2);
         len -= pref;
         while (len > 4) {
             size_t curr = len > LUAL_BUFFERSIZE ? LUAL_BUFFERSIZE : len;
             s = luaL_prepbuffer(&S->B);
             while (curr > 4) {
-                s[0] = s[1] = s[2] = '0', s[3] = d->grouping;
+                s[0] = s[1] = s[2] = '0', s[3] = (char)d->grouping;
                 s += 4, luaL_addsize(&S->B, 4), curr -= 4, len -= 4;
             }
         }
@@ -347,7 +347,7 @@ static int fmt_writeint(char **pp, lua_Integer v, const fmt_Spec *d) {
     }
     zeroing = d->grouping ? FMT_DELIMITPOS : 0;
     while (*--p = hexa[v % radix], v /= radix, --zeroing, v)
-        if (!zeroing) zeroing = FMT_DELIMITPOS, *--p = d->grouping;
+        if (!zeroing) zeroing = FMT_DELIMITPOS, *--p = (char)d->grouping;
     *pp = p;
     return zeroing;
 }
@@ -359,8 +359,8 @@ static void fmt_dumpint(fmt_State *S, lua_Integer v, const fmt_Spec *d) {
     S->zeroing = fmt_writeint(&p, v, d);
     dp = p;
     if (d->alter && d->type != 0 && d->type != 'd')
-        *--p = d->type, *--p = '0';
-    if ((p[-1] = fmt_writesign(sign, d->sign)) != 0) --p;
+        *--p = (char)d->type, *--p = '0';
+    if ((p[-1] = (char)fmt_writesign(sign, d->sign)) != 0) --p;
     if (d->zero && d->width > FMT_INTBUFFSIZ - (p-buff)) {
         if (dp > p) luaL_addlstring(&S->B, p, dp - p);
         width -= (int)(dp - p), p = dp;
@@ -396,7 +396,7 @@ static void fmt_dumpflt(fmt_State *S, lua_Number v, const fmt_Spec *d) {
             "Grouping form (%c) not allowed in float format specifier",
             d->grouping);
     if (!sign) v = -v;
-    if ((*dp = fmt_writesign(sign, d->sign)) != 0) ++dp;
+    if ((*dp = (char)fmt_writesign(sign, d->sign)) != 0) ++dp;
     len = fmt_writeflt(dp, FMT_FLTBUFFSIZ - (dp-buff), v, d);
     if (d->zero && width > len) {
         if (dp > p) luaL_addlstring(&S->B, buff, dp - p);
@@ -496,3 +496,4 @@ LUALIB_API int luaopen_fmt(lua_State *L) {
  * maccc: flags+='-undefined dynamic_lookup'
  * win32cc: flags+='-s -mdll -DLUA_BUILD_AS_DLL '
  * win32cc: libs+='-llua54' output='fmt.dll' */
+
