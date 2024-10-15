@@ -710,7 +710,7 @@ static int concat_resp(lua_State* L) {
 }
 
 extern "C" {
-int LUAMOD_API luaopen_yyjson(lua_State* L) {
+int  luaopen_yyjson(lua_State* L) {
     luaL_Reg l[] = { { "encode", encode },
                      { "pretty_encode", pretty_encode },
                      { "decode", decode },
