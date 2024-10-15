@@ -103,23 +103,23 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     target_link_libraries(ltls OpenSSL::SSL)
 
     # 生成动态库 pb.so
-    aux_source_directory(3rd/lua-protobuf PB_SRC)
+    aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
     add_library(pb SHARED ${PB_SRC})
 
     # 生成动态库 lfs.so
-    aux_source_directory(3rd/luafilesystem LFS_SRC)
+    aux_source_directory(3rd/luaclib/luafilesystem LFS_SRC)
     add_library(lfs SHARED ${LFS_SRC})
 
     # 生成动态库 fmt.so
-    aux_source_directory(3rd/lfmt FMT_SRC)
+    aux_source_directory(3rd/luaclib/lfmt FMT_SRC)
     add_library(fmt SHARED ${FMT_SRC})
 
     # 生成动态库 skiplist.so
-    aux_source_directory(3rd/lua-zset SKIP_LIST_SRC)
+    aux_source_directory(3rd/luaclib/lua-zset SKIP_LIST_SRC)
     add_library(skiplist SHARED ${SKIP_LIST_SRC})
 
     # 生成动态库 yyjson.so
-    aux_source_directory(3rd/lua-yyjson YYJSON_SRC)
+    aux_source_directory(3rd/luaclib/lua-yyjson YYJSON_SRC)
     add_library(yyjson SHARED ${YYJSON_SRC})
 
     set_target_properties(lpeg sproto client md5 bson ltls
@@ -138,8 +138,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
     # 把lua头文件添加到全局搜索路径
-    include_directories(3rd/posix 3rd/pthread-win32 skynet/skynet-src)
-    add_compile_options(/FI ${CMAKE_SOURCE_DIR}/3rd/posix/unistd.h)
+    include_directories(3rd/core/posix 3rd/pthread-win32 skynet/skynet-src)
+    add_compile_options(/FI ${CMAKE_SOURCE_DIR}/3rd/core/posix/unistd.h)
 
     message(STATUS "The value of CMAKE_BINARY_DIR is: ${CMAKE_BINARY_DIR}")
 
@@ -147,7 +147,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     list(REMOVE_ITEM LIB_SKYNET_SRC skynet/skynet-src/skynet_main.c)
     aux_source_directory(skynet/3rd/lua LUA_LIB_SRC)
     list(REMOVE_ITEM LUA_LIB_SRC "skynet/3rd/lua/lua.c" "skynet/3rd/lua/luac.c" "skynet/3rd/lua/onelua.c")
-    aux_source_directory(3rd/posix POSIX_SRC)
+    aux_source_directory(3rd/core/posix POSIX_SRC)
 
     add_subdirectory(3rd/pthread-win32)
 
@@ -214,27 +214,27 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     # target_link_libraries(ltls liblua OpenSSL::SSL)
 
     # 生成动态库 pb.so
-    aux_source_directory(3rd/lua-protobuf PB_SRC)
+    aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
     add_library(pb SHARED ${PB_SRC})
     target_link_libraries(pb liblua)
 
     # 生成动态库 lfs.so
-    aux_source_directory(3rd/luafilesystem LFS_SRC)
+    aux_source_directory(3rd/luaclib/luafilesystem LFS_SRC)
     add_library(lfs SHARED ${LFS_SRC})
     target_link_libraries(lfs liblua)
 
     # 生成动态库 fmt.so
-    aux_source_directory(3rd/lfmt FMT_SRC)
+    aux_source_directory(3rd/luaclib/lfmt FMT_SRC)
     add_library(fmt SHARED ${FMT_SRC})
     target_link_libraries(fmt liblua)
 
     # 生成动态库 skiplist.so
-    aux_source_directory(3rd/lua-zset SKIP_LIST_SRC)
+    aux_source_directory(3rd/luaclib/lua-zset SKIP_LIST_SRC)
     add_library(skiplist SHARED ${SKIP_LIST_SRC})
     target_link_libraries(skiplist liblua)
 
     # 生成动态库 yyjson.so
-    aux_source_directory(3rd/lua-yyjson YYJSON_SRC)
+    aux_source_directory(3rd/luaclib/lua-yyjson YYJSON_SRC)
     add_library(yyjson SHARED ${YYJSON_SRC})
     target_link_libraries(yyjson liblua)
 
@@ -348,23 +348,23 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     target_link_libraries(ltls OpenSSL::SSL)
 
     # 生成动态库 pb.so
-    aux_source_directory(3rd/lua-protobuf PB_SRC)
+    aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
     add_library(pb SHARED ${PB_SRC})
 
     # 生成动态库 lfs.so
-    aux_source_directory(3rd/luafilesystem LFS_SRC)
+    aux_source_directory(3rd/luaclib/luafilesystem LFS_SRC)
     add_library(lfs SHARED ${LFS_SRC})
 
     # 生成动态库 fmt.so
-    aux_source_directory(3rd/lfmt FMT_SRC)
+    aux_source_directory(3rd/luaclib/lfmt FMT_SRC)
     add_library(fmt SHARED ${FMT_SRC})
 
     # 生成动态库 skiplist.so
-    aux_source_directory(3rd/lua-zset SKIP_LIST_SRC)
+    aux_source_directory(3rd/luaclib/lua-zset SKIP_LIST_SRC)
     add_library(skiplist SHARED ${SKIP_LIST_SRC})
 
     # 生成动态库 yyjson.so
-    aux_source_directory(3rd/lua-yyjson YYJSON_SRC)
+    aux_source_directory(3rd/luaclib/lua-yyjson YYJSON_SRC)
     add_library(yyjson SHARED ${YYJSON_SRC})
 
     set_target_properties(lpeg sproto client md5 bson ltls
