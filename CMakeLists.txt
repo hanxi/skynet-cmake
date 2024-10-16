@@ -9,11 +9,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # openssl 3.*
-# find_package(OpenSSL REQUIRED)
+find_package(OpenSSL REQUIRED)
 # 把lua头文件添加到全局搜索路径
-include_directories(
-            skynet/3rd/lua/
-            3rd/core/ )
+include_directories(skynet/3rd/lua/
+                    3rd/core/
+                    ${OPENSSL_INCLUDE_DIR})
 
 # Linux
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -98,9 +98,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     aux_source_directory(skynet/3rd/lpeg LPEG_SRC)
     add_library(lpeg SHARED ${LPEG_SRC})
 
-    # # 生成动态库 ltls.so
-    # add_library(ltls SHARED skynet/lualib-src/ltls.c)
-    # target_link_libraries(ltls OpenSSL::SSL)
+    # 生成动态库 ltls.so
+    add_library(ltls SHARED skynet/lualib-src/ltls.c)
+    target_link_libraries(ltls OpenSSL::SSL)
 
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
@@ -122,7 +122,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     aux_source_directory(3rd/luaclib/lua-yyjson YYJSON_SRC)
     add_library(yyjson SHARED ${YYJSON_SRC})
 
-    set_target_properties(lpeg sproto client md5 bson
+    set_target_properties(lpeg sproto client md5 bson ltls
         pb lfs fmt skiplist yyjson
         PROPERTIES
         PREFIX ""
@@ -238,7 +238,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(yyjson SHARED ${YYJSON_SRC})
     target_link_libraries(yyjson liblua)
 
-    set_target_properties(lpeg sproto client md5 bson skynetso
+    set_target_properties(lpeg sproto client md5 bson skynetso ltls
         pb lfs fmt skiplist yyjson
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
@@ -343,9 +343,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     aux_source_directory(skynet/3rd/lpeg LPEG_SRC)
     add_library(lpeg SHARED ${LPEG_SRC})
 
-    # # 生成动态库 ltls.so
-    # add_library(ltls SHARED skynet/lualib-src/ltls.c)
-    # target_link_libraries(ltls OpenSSL::SSL)
+    # 生成动态库 ltls.so
+    add_library(ltls SHARED skynet/lualib-src/ltls.c)
+    target_link_libraries(ltls OpenSSL::SSL)
 
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
@@ -367,7 +367,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     aux_source_directory(3rd/luaclib/lua-yyjson YYJSON_SRC)
     add_library(yyjson SHARED ${YYJSON_SRC})
 
-    set_target_properties(lpeg sproto client md5 bson
+    set_target_properties(lpeg sproto client md5 bson ltls
         pb lfs fmt skiplist yyjson
         PROPERTIES
         PREFIX ""
