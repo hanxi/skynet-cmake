@@ -12,7 +12,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(OpenSSL REQUIRED)
 # 把lua头文件添加到全局搜索路径
 include_directories(skynet/3rd/lua/
-                    3rd/core/
+                    3rd/core/luakit/include/
+                    3rd/core/fmt/include/
                     ${OPENSSL_INCLUDE_DIR})
 
 # Linux
@@ -110,20 +111,21 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     aux_source_directory(3rd/luaclib/luafilesystem LFS_SRC)
     add_library(lfs SHARED ${LFS_SRC})
 
-    # 生成动态库 fmt.so
-    aux_source_directory(3rd/luaclib/lfmt FMT_SRC)
-    add_library(fmt SHARED ${FMT_SRC})
-
     # 生成动态库 skiplist.so
     aux_source_directory(3rd/luaclib/lua-zset SKIP_LIST_SRC)
     add_library(skiplist SHARED ${SKIP_LIST_SRC})
 
-    # 生成动态库 yyjson.so
-    aux_source_directory(3rd/luaclib/lua-yyjson YYJSON_SRC)
-    add_library(yyjson SHARED ${YYJSON_SRC})
+    # 生成动态库 ljson.so
+    aux_source_directory(3rd/luaclib/ljson LJSON_SRC)
+    add_library(ljson SHARED ${LJSON_SRC})
+
+    # 生成动态库 lualog.so
+    aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
+    add_library(lualog SHARED ${LUALOG_SRC})
+    target_link_libraries(lualog m pthread dl)
 
     set_target_properties(lpeg sproto client md5 bson ltls
-        pb lfs fmt skiplist yyjson
+        pb lfs skiplist ljson lualog
         PROPERTIES
         PREFIX ""
         SUFFIX .so
@@ -209,9 +211,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(lpeg SHARED ${LPEG_SRC})
     target_link_libraries(lpeg liblua)
 
-    # # 生成动态库 ltls.so
-    # add_library(ltls SHARED skynet/lualib-src/ltls.c)
-    # target_link_libraries(ltls liblua OpenSSL::SSL)
+    # 生成动态库 ltls.so
+    add_library(ltls SHARED skynet/lualib-src/ltls.c)
+    target_link_libraries(ltls liblua OpenSSL::SSL)
 
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
@@ -223,29 +225,29 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(lfs SHARED ${LFS_SRC})
     target_link_libraries(lfs liblua)
 
-    # 生成动态库 fmt.so
-    aux_source_directory(3rd/luaclib/lfmt FMT_SRC)
-    add_library(fmt SHARED ${FMT_SRC})
-    target_link_libraries(fmt liblua)
-
     # 生成动态库 skiplist.so
     aux_source_directory(3rd/luaclib/lua-zset SKIP_LIST_SRC)
     add_library(skiplist SHARED ${SKIP_LIST_SRC})
     target_link_libraries(skiplist liblua)
 
-    # 生成动态库 yyjson.so
-    aux_source_directory(3rd/luaclib/lua-yyjson YYJSON_SRC)
-    add_library(yyjson SHARED ${YYJSON_SRC})
-    target_link_libraries(yyjson liblua)
+    # 生成动态库 ljson.so
+    aux_source_directory(3rd/luaclib/ljson LJSON_SRC)
+    add_library(ljson SHARED ${LJSON_SRC})
+    target_link_libraries(ljson liblua)
+
+    # 生成动态库 lualog.so
+    aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
+    add_library(lualog SHARED ${LUALOG_SRC})
+    target_link_libraries(lualog ws2_32 liblua libposix pthreadVC3)
 
     set_target_properties(lpeg sproto client md5 bson skynetso ltls
-        pb lfs fmt skiplist yyjson
+        pb lfs skiplist ljson lualog
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         PREFIX ""
         SUFFIX .so
-        )
+    )
 
     # 生成c服务
     file(GLOB CSERVICE_FILE_LIST "skynet/service-src/*.c")
@@ -355,20 +357,21 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     aux_source_directory(3rd/luaclib/luafilesystem LFS_SRC)
     add_library(lfs SHARED ${LFS_SRC})
 
-    # 生成动态库 fmt.so
-    aux_source_directory(3rd/luaclib/lfmt FMT_SRC)
-    add_library(fmt SHARED ${FMT_SRC})
-
     # 生成动态库 skiplist.so
     aux_source_directory(3rd/luaclib/lua-zset SKIP_LIST_SRC)
     add_library(skiplist SHARED ${SKIP_LIST_SRC})
 
-    # 生成动态库 yyjson.so
-    aux_source_directory(3rd/luaclib/lua-yyjson YYJSON_SRC)
-    add_library(yyjson SHARED ${YYJSON_SRC})
+    # 生成动态库 ljson.so
+    aux_source_directory(3rd/luaclib/ljson LJSON_SRC)
+    add_library(ljson SHARED ${LJSON_SRC})
+
+    # 生成动态库 lualog.so
+    aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
+    add_library(lualog SHARED ${LUALOG_SRC})
+    target_link_libraries(lualog m pthread dl)
 
     set_target_properties(lpeg sproto client md5 bson ltls
-        pb lfs fmt skiplist yyjson
+        pb lfs skiplist ljson lualog
         PROPERTIES
         PREFIX ""
         SUFFIX .so
