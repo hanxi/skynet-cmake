@@ -13,7 +13,6 @@ find_package(OpenSSL REQUIRED)
 # 把lua头文件添加到全局搜索路径
 include_directories(skynet/3rd/lua/
                     3rd/core/luakit/include/
-                    3rd/core/fmt/include/
                     ${OPENSSL_INCLUDE_DIR})
 
 # Linux
@@ -115,6 +114,10 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     aux_source_directory(3rd/luaclib/lua-zset SKIP_LIST_SRC)
     add_library(skiplist SHARED ${SKIP_LIST_SRC})
 
+    # 生成动态库 fmt.so
+    aux_source_directory(3rd/luaclib/lua-fmt FMT_SRC)
+    add_library(fmt SHARED ${FMT_SRC})
+
     # 生成动态库 ljson.so
     aux_source_directory(3rd/luaclib/ljson LJSON_SRC)
     add_library(ljson SHARED ${LJSON_SRC})
@@ -122,14 +125,28 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     # 生成动态库 lualog.so
     aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
     add_library(lualog SHARED ${LUALOG_SRC})
+    target_include_directories(lualog PRIVATE 3rd/core/fmt/include)
     target_link_libraries(lualog m pthread dl)
 
     # 生成动态库 aoi.so
     aux_source_directory(3rd/luaclib/lua-aoi AOI_SRC)
     add_library(aoi SHARED ${AOI_SRC})
 
+    # 生成动态库 navmesh.so
+    aux_source_directory(3rd/core/recastnavigation/Detour/Source NAVMESH_SRC)
+    aux_source_directory(3rd/core/recastnavigation/DetourCrowd/Source NAVMESH_SRC)
+    aux_source_directory(3rd/core/recastnavigation/DetourTileCache/Source NAVMESH_SRC)
+    aux_source_directory(3rd/core/recastnavigation/Recast/Source NAVMESH_SRC)
+    aux_source_directory(3rd/luaclib/lua-navmesh NAVMESH_SRC)
+    add_library(navmesh SHARED ${NAVMESH_SRC})
+    target_include_directories(navmesh PRIVATE 
+                3rd/core/recastnavigation/Detour/Include
+                3rd/core/recastnavigation/DetourCrowd/Include
+                3rd/core/recastnavigation/DetourTileCache/Include
+                3rd/core/recastnavigation/Recast/Include)
+
     set_target_properties(lpeg sproto client md5 bson ltls
-        pb lfs skiplist ljson lualog aoi
+        pb lfs skiplist fmt ljson aoi lualog navmesh
         PROPERTIES
         PREFIX ""
         SUFFIX .so
@@ -202,7 +219,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     target_link_libraries(md5 liblua)
 
     # 生成动态库 client.so
-    add_library(client SHARED skynet/lualib-src/lua-clientsocket.c skynet/lualib-src/lua-crypt.c skynet/lualib-src/lsha1.c)
+    add_library(client SHARED skynet/lualib-src/lua-clientsocket.c
+                        skynet/lualib-src/lua-crypt.c
+                        skynet/lualib-src/lsha1.c)
     target_link_libraries(client ws2_32 liblua libposix pthreadVC3)
 
     # 生成动态库 sproto.so
@@ -234,6 +253,11 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(skiplist SHARED ${SKIP_LIST_SRC})
     target_link_libraries(skiplist liblua)
 
+    # 生成动态库 fmt.so
+    aux_source_directory(3rd/luaclib/lua-fmt FMT_SRC)
+    add_library(fmt SHARED ${FMT_SRC})
+    target_link_libraries(fmt liblua)
+
     # 生成动态库 ljson.so
     aux_source_directory(3rd/luaclib/ljson LJSON_SRC)
     add_library(ljson SHARED ${LJSON_SRC})
@@ -242,6 +266,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     # 生成动态库 lualog.so
     aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
     add_library(lualog SHARED ${LUALOG_SRC})
+    target_include_directories(lualog PRIVATE 3rd/core/fmt/include)
     target_link_libraries(lualog ws2_32 liblua libposix pthreadVC3)
 
     # 生成动态库 aoi.so
@@ -249,8 +274,22 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(aoi SHARED ${AOI_SRC})
     target_link_libraries(aoi liblua)
 
+    # 生成动态库 navmesh.so
+    aux_source_directory(3rd/core/recastnavigation/Detour/Source NAVMESH_SRC)
+    aux_source_directory(3rd/core/recastnavigation/DetourCrowd/Source NAVMESH_SRC)
+    aux_source_directory(3rd/core/recastnavigation/DetourTileCache/Source NAVMESH_SRC)
+    aux_source_directory(3rd/core/recastnavigation/Recast/Source NAVMESH_SRC)
+    aux_source_directory(3rd/luaclib/lua-navmesh NAVMESH_SRC)
+    add_library(navmesh SHARED ${NAVMESH_SRC})
+    target_include_directories(navmesh PRIVATE 
+                3rd/core/recastnavigation/Detour/Include
+                3rd/core/recastnavigation/DetourCrowd/Include
+                3rd/core/recastnavigation/DetourTileCache/Include
+                3rd/core/recastnavigation/Recast/Include)
+    target_link_libraries(navmesh liblua)
+
     set_target_properties(lpeg sproto client md5 bson skynetso ltls
-        pb lfs skiplist ljson lualog aoi
+        pb lfs skiplist fmt ljson aoi lualog navmesh
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
@@ -343,7 +382,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     add_library(md5 SHARED ${LUA_MD5_SRC})
 
     # 生成动态库 client.so
-    add_library(client SHARED skynet/lualib-src/lua-clientsocket.c skynet/lualib-src/lua-crypt.c skynet/lualib-src/lsha1.c)
+    add_library(client SHARED skynet/lualib-src/lua-clientsocket.c
+                            skynet/lualib-src/lua-crypt.c skynet/lualib-src/lsha1.c)
     target_link_libraries(client pthread)
 
     # 生成动态库 sproto.so
@@ -370,21 +410,39 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     aux_source_directory(3rd/luaclib/lua-zset SKIP_LIST_SRC)
     add_library(skiplist SHARED ${SKIP_LIST_SRC})
 
+    # 生成动态库 fmt.so
+    aux_source_directory(3rd/luaclib/lua-fmt FMT_SRC)
+    add_library(fmt SHARED ${FMT_SRC})
+
     # 生成动态库 ljson.so
     aux_source_directory(3rd/luaclib/ljson LJSON_SRC)
     add_library(ljson SHARED ${LJSON_SRC})
-
-    # 生成动态库 lualog.so
-    aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
-    add_library(lualog SHARED ${LUALOG_SRC})
-    target_link_libraries(lualog m pthread dl)
 
     # 生成动态库 aoi.so
     aux_source_directory(3rd/luaclib/lua-aoi AOI_SRC)
     add_library(aoi SHARED ${AOI_SRC})
 
+    # 生成动态库 lualog.so
+    aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
+    add_library(lualog SHARED ${LUALOG_SRC})
+    target_include_directories(lualog PRIVATE 3rd/core/fmt/include)
+    target_link_libraries(lualog m pthread dl)
+
+    # 生成动态库 navmesh.so
+    aux_source_directory(3rd/core/recastnavigation/Detour/Source NAVMESH_SRC)
+    aux_source_directory(3rd/core/recastnavigation/DetourCrowd/Source NAVMESH_SRC)
+    aux_source_directory(3rd/core/recastnavigation/DetourTileCache/Source NAVMESH_SRC)
+    aux_source_directory(3rd/core/recastnavigation/Recast/Source NAVMESH_SRC)
+    aux_source_directory(3rd/luaclib/lua-navmesh NAVMESH_SRC)
+    add_library(navmesh SHARED ${NAVMESH_SRC})
+    target_include_directories(navmesh PRIVATE 
+                3rd/core/recastnavigation/Detour/Include
+                3rd/core/recastnavigation/DetourCrowd/Include
+                3rd/core/recastnavigation/DetourTileCache/Include
+                3rd/core/recastnavigation/Recast/Include)
+
     set_target_properties(lpeg sproto client md5 bson ltls
-        pb lfs skiplist ljson lualog aoi
+        pb lfs skiplist ljson fmt aoi lualog navmesh
         PROPERTIES
         PREFIX ""
         SUFFIX .so
