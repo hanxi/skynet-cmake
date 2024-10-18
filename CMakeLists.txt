@@ -128,8 +128,12 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     aux_source_directory(3rd/luaclib/lua-aoi AOI_SRC)
     add_library(aoi SHARED ${AOI_SRC})
 
+    # 生成动态库 aoi.so
+    aux_source_directory(3rd/luaclib/lua-jps JPS_SRC)
+    add_library(jps SHARED ${JPS_SRC})
+
     set_target_properties(lpeg sproto client md5 bson ltls
-        pb lfs skiplist ljson lualog aoi
+        pb lfs skiplist ljson lualog aoi jps
         PROPERTIES
         PREFIX ""
         SUFFIX .so
@@ -249,8 +253,12 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(aoi SHARED ${AOI_SRC})
     target_link_libraries(aoi liblua)
 
+    # 生成动态库 aoi.so
+    aux_source_directory(3rd/luaclib/lua-jps JPS_SRC)
+    add_library(jps SHARED ${JPS_SRC})
+
     set_target_properties(lpeg sproto client md5 bson skynetso ltls
-        pb lfs skiplist ljson lualog aoi
+        pb lfs skiplist ljson lualog aoi jps
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
@@ -383,8 +391,12 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     aux_source_directory(3rd/luaclib/lua-aoi AOI_SRC)
     add_library(aoi SHARED ${AOI_SRC})
 
+    # 生成动态库 aoi.so
+    aux_source_directory(3rd/luaclib/lua-jps JPS_SRC)
+    add_library(jps SHARED ${JPS_SRC})
+
     set_target_properties(lpeg sproto client md5 bson ltls
-        pb lfs skiplist ljson lualog aoi
+        pb lfs skiplist ljson lualog aoi jps
         PROPERTIES
         PREFIX ""
         SUFFIX .so
