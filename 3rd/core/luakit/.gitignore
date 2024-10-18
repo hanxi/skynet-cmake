@@ -1,0 +1,59 @@
+*.~uml
+*.csv 
+*.dll
+*.log
+*.exe
+*.txt
+*.dump
+*.dmp
+*.dat 
+
+#ignore this dir##
+.vs
+.vscode
+temp
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.exp
+*.out
+*.app
+
+# msvc
+*.db
+*.suo
+*.user
+*.opendb
+*.sdf
+*.opensdf
+*.zip
+*.7z
+*.tar
