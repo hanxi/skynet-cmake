@@ -10,9 +10,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # openssl 3.*
 find_package(OpenSSL REQUIRED)
-# 把lua头文件添加到全局搜索路径
+# 把lua头文件添加到全局搜索路径 TODO:找时间去掉 luakit
 include_directories(skynet/3rd/lua/
                     3rd/core/common/
+                    3rd/core/luakit/include/
+                    3rd/core/fmt/include/
                     ${OPENSSL_INCLUDE_DIR})
 
 # Linux
@@ -124,12 +126,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     aux_source_directory(3rd/luaclib/lua-zset ZSET_SRC)
     add_library(zset SHARED ${ZSET_SRC})
 
-    # # 生成动态库 lualog.so
-    # aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
-    # add_library(lualog SHARED ${LUALOG_SRC})
-    # target_include_directories(lualog PRIVATE 3rd/core/fmt/include)
-    # target_link_libraries(lualog m pthread dl)
-
     # 生成动态库 aoi.so
     aux_source_directory(3rd/luaclib/lua-aoi AOI_SRC)
     add_library(aoi SHARED ${AOI_SRC})
@@ -147,8 +143,13 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
                 3rd/core/recastnavigation/DetourTileCache/Include
                 3rd/core/recastnavigation/Recast/Include)
 
+    # 生成动态库 lualog.so
+    aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
+    add_library(lualog SHARED ${LUALOG_SRC})
+    target_link_libraries(lualog m pthread dl)
+
     set_target_properties(lpeg sproto client md5 bson ltls
-        pb lfs fmt yyjson zset aoi navmesh
+        pb lfs fmt yyjson zset aoi navmesh lualog
         PROPERTIES
         PREFIX ""
         SUFFIX .so
@@ -265,11 +266,10 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(zset SHARED ${ZSET_SRC})
     target_link_libraries(zset liblua)
 
-    # # 生成动态库 lualog.so
-    # aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
-    # add_library(lualog SHARED ${LUALOG_SRC})
-    # target_include_directories(lualog PRIVATE 3rd/core/fmt/include)
-    # target_link_libraries(lualog ws2_32 liblua libposix pthreadVC3)
+    # 生成动态库 lualog.so
+    aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
+    add_library(lualog SHARED ${LUALOG_SRC})
+    target_link_libraries(lualog ws2_32 liblua libposix pthreadVC3)
 
     # 生成动态库 aoi.so
     aux_source_directory(3rd/luaclib/lua-aoi AOI_SRC)
@@ -291,7 +291,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     target_link_libraries(navmesh liblua)
 
     set_target_properties(lpeg sproto client md5 bson skynetso ltls
-        pb lfs fmt yyjson zset aoi navmesh
+        pb lfs fmt yyjson zset aoi navmesh lualog
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
@@ -425,12 +425,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     aux_source_directory(3rd/luaclib/lua-aoi AOI_SRC)
     add_library(aoi SHARED ${AOI_SRC})
 
-    # # 生成动态库 lualog.so
-    # aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
-    # add_library(lualog SHARED ${LUALOG_SRC})
-    # target_include_directories(lualog PRIVATE 3rd/core/fmt/include)
-    # target_link_libraries(lualog m pthread dl)
-
     # 生成动态库 navmesh.so
     aux_source_directory(3rd/core/recastnavigation/Detour/Source NAVMESH_SRC)
     aux_source_directory(3rd/core/recastnavigation/DetourCrowd/Source NAVMESH_SRC)
@@ -444,8 +438,13 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
                 3rd/core/recastnavigation/DetourTileCache/Include
                 3rd/core/recastnavigation/Recast/Include)
 
+    # 生成动态库 lualog.so
+    aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
+    add_library(lualog SHARED ${LUALOG_SRC})
+    target_link_libraries(lualog m pthread dl)
+
     set_target_properties(lpeg sproto client md5 bson ltls
-        pb lfs fmt yyjson zset aoi navmesh
+        pb lfs fmt yyjson zset aoi navmesh lualog
         PROPERTIES
         PREFIX ""
         SUFFIX .so
