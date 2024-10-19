@@ -8,19 +8,29 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# openssl 3.*
-find_package(OpenSSL REQUIRED)
 # 把lua头文件添加到全局搜索路径 TODO:找时间去掉 luakit
 include_directories(skynet/3rd/lua/
                     3rd/core/common/
                     3rd/core/luakit/include/
                     3rd/core/fmt/include/
-                    ${OPENSSL_INCLUDE_DIR})
+                    3rd/core/recastnavigation/Detour/Include/
+                    3rd/core/recastnavigation/DetourCrowd/Include/
+                    3rd/core/recastnavigation/DetourTileCache/Include/
+                    3rd/core/recastnavigation/Recast/Include/
+                    3rd/core/openssl/include/)
+
+aux_source_directory(3rd/core/recastnavigation/Detour/Source Detour_SRC)
+aux_source_directory(3rd/core/recastnavigation/DetourCrowd/Source DetourCrowd_SRC)
+aux_source_directory(3rd/core/recastnavigation/DetourTileCache/Source DetourTileCache_SRC)
+aux_source_directory(3rd/core/recastnavigation/Recast/Source Recast_SRC)
 
 # Linux
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     message(STATUS "current platform: Linux")
     add_compile_definitions(NOUSE_JEMALLOC LUA_USE_LINUX LUA_USE_READLINE)
+
+    find_library(SSL ssl 3rd/core/openssl/lib/linux/)
+    find_library(CRYPTO crypto 3rd/core/openssl/lib/linux/)
 
     # 添加编译选项
     add_compile_options(-g)
@@ -104,7 +114,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
 
     # 生成动态库 ltls.so
     add_library(ltls SHARED skynet/lualib-src/ltls.c)
-    target_link_libraries(ltls OpenSSL::SSL)
+    target_link_libraries(ltls ${SSL})
 
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
@@ -131,17 +141,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     add_library(aoi SHARED ${AOI_SRC})
 
     # 生成动态库 navmesh.so
-    aux_source_directory(3rd/core/recastnavigation/Detour/Source NAVMESH_SRC)
-    aux_source_directory(3rd/core/recastnavigation/DetourCrowd/Source NAVMESH_SRC)
-    aux_source_directory(3rd/core/recastnavigation/DetourTileCache/Source NAVMESH_SRC)
-    aux_source_directory(3rd/core/recastnavigation/Recast/Source NAVMESH_SRC)
-    aux_source_directory(3rd/luaclib/lua-navmesh NAVMESH_SRC)
-    add_library(navmesh SHARED ${NAVMESH_SRC})
-    target_include_directories(navmesh PRIVATE 
-                3rd/core/recastnavigation/Detour/Include
-                3rd/core/recastnavigation/DetourCrowd/Include
-                3rd/core/recastnavigation/DetourTileCache/Include
-                3rd/core/recastnavigation/Recast/Include)
+    add_library(navmesh SHARED ${NAVMESH_SRC} ${Detour_SRC} ${DetourCrowd_SRC} ${DetourTileCache_SRC} ${Recast_SRC})
 
     # 生成动态库 lualog.so
     aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
@@ -160,6 +160,10 @@ endif ()
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     message(STATUS "current platform: Windows")
     add_compile_definitions(NOUSE_JEMALLOC LUA_BUILD_AS_DLL)
+
+    find_library(SSL ssl 3rd/core/openssl/lib/windows/)
+    find_library(CRYPTO crypto 3rd/core/openssl/lib/windows/)
+
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion -Wno-implicit-function-declaration -Wno-deprecated-declarations")
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
@@ -239,7 +243,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
     # 生成动态库 ltls.so
     add_library(ltls SHARED skynet/lualib-src/ltls.c)
-    target_link_libraries(ltls liblua OpenSSL::SSL)
+    target_link_libraries(ltls liblua ${SSL})
 
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
@@ -277,17 +281,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     target_link_libraries(aoi liblua)
 
     # 生成动态库 navmesh.so
-    aux_source_directory(3rd/core/recastnavigation/Detour/Source NAVMESH_SRC)
-    aux_source_directory(3rd/core/recastnavigation/DetourCrowd/Source NAVMESH_SRC)
-    aux_source_directory(3rd/core/recastnavigation/DetourTileCache/Source NAVMESH_SRC)
-    aux_source_directory(3rd/core/recastnavigation/Recast/Source NAVMESH_SRC)
     aux_source_directory(3rd/luaclib/lua-navmesh NAVMESH_SRC)
-    add_library(navmesh SHARED ${NAVMESH_SRC})
-    target_include_directories(navmesh PRIVATE 
-                3rd/core/recastnavigation/Detour/Include
-                3rd/core/recastnavigation/DetourCrowd/Include
-                3rd/core/recastnavigation/DetourTileCache/Include
-                3rd/core/recastnavigation/Recast/Include)
+    add_library(navmesh SHARED ${NAVMESH_SRC} ${Detour_SRC} ${DetourCrowd_SRC} ${DetourTileCache_SRC} ${Recast_SRC})
     target_link_libraries(navmesh liblua)
 
     set_target_properties(lpeg sproto client md5 bson skynetso ltls
@@ -325,10 +320,12 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     message(STATUS "current platform: Mac OS X")
     add_compile_definitions(NOUSE_JEMALLOC LUA_USE_MACOSX LUA_USE_READLINE)
 
+    find_library(SSL ssl 3rd/core/openssl/lib/macosx/)
+    find_library(CRYPTO crypto 3rd/core/openssl/lib/macosx/)
+
     set(CMAKE_C_FLAGS  " -O2 -Wall" )
     set(CMAKE_SHARED_LINKER_FLAGS " -fPIC -dynamiclib -Wl,-undefined,dynamic_lookup")
 
-    # 把lua头文件添加到全局搜索路径
     # 添加编译选项
     add_compile_options(-g)
 
@@ -399,7 +396,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
     # 生成动态库 ltls.so
     add_library(ltls SHARED skynet/lualib-src/ltls.c)
-    target_link_libraries(ltls OpenSSL::SSL)
+    target_link_libraries(ltls ${SSL})
 
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
@@ -426,17 +423,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     add_library(aoi SHARED ${AOI_SRC})
 
     # 生成动态库 navmesh.so
-    aux_source_directory(3rd/core/recastnavigation/Detour/Source NAVMESH_SRC)
-    aux_source_directory(3rd/core/recastnavigation/DetourCrowd/Source NAVMESH_SRC)
-    aux_source_directory(3rd/core/recastnavigation/DetourTileCache/Source NAVMESH_SRC)
-    aux_source_directory(3rd/core/recastnavigation/Recast/Source NAVMESH_SRC)
     aux_source_directory(3rd/luaclib/lua-navmesh NAVMESH_SRC)
-    add_library(navmesh SHARED ${NAVMESH_SRC})
-    target_include_directories(navmesh PRIVATE 
-                3rd/core/recastnavigation/Detour/Include
-                3rd/core/recastnavigation/DetourCrowd/Include
-                3rd/core/recastnavigation/DetourTileCache/Include
-                3rd/core/recastnavigation/Recast/Include)
+    add_library(navmesh SHARED ${NAVMESH_SRC} ${Detour_SRC} ${DetourCrowd_SRC} ${DetourTileCache_SRC} ${Recast_SRC})
 
     # 生成动态库 lualog.so
     aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)

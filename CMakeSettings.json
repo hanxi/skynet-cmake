@@ -9,7 +9,6 @@
             "cmakeCommandArgs": "",
             "buildCommandArgs": "",
             "ctestCommandArgs": "",
-            "cmakeToolchain": "../vcpkg/scripts/buildsystems/vcpkg.cmake",
             "inheritEnvironments": [ "clang_cl_x64" ]
         },
         {
@@ -21,7 +20,6 @@
             "cmakeCommandArgs": "",
             "buildCommandArgs": "",
             "ctestCommandArgs": "",
-            "cmakeToolchain": "../vcpkg/scripts/buildsystems/vcpkg.cmake",
             "inheritEnvironments": [ "clang_cl_x86" ]
         }
     ]
