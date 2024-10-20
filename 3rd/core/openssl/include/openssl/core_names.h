@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 The OpenSSL Project Authors. All Rights Reserved.
+ * Copyright 2019-2022 The OpenSSL Project Authors. All Rights Reserved.
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -21,13 +21,11 @@ extern "C" {
 #define OSSL_PROV_PARAM_CORE_MODULE_FILENAME "module-filename" /* utf8_ptr */
 
 /* Well known parameter names that Providers can define */
-#define OSSL_PROV_PARAM_NAME               "name"                /* utf8_ptr */
-#define OSSL_PROV_PARAM_VERSION            "version"             /* utf8_ptr */
-#define OSSL_PROV_PARAM_BUILDINFO          "buildinfo"           /* utf8_ptr */
-#define OSSL_PROV_PARAM_STATUS             "status"              /* uint */
-#define OSSL_PROV_PARAM_SECURITY_CHECKS    "security-checks"     /* uint */
-#define OSSL_PROV_PARAM_TLS1_PRF_EMS_CHECK "tls1-prf-ems-check"  /* uint */
-#define OSSL_PROV_PARAM_DRBG_TRUNC_DIGEST  "drbg-no-trunc-md"    /* uint */
+#define OSSL_PROV_PARAM_NAME            "name"                /* utf8_ptr */
+#define OSSL_PROV_PARAM_VERSION         "version"             /* utf8_ptr */
+#define OSSL_PROV_PARAM_BUILDINFO       "buildinfo"           /* utf8_ptr */
+#define OSSL_PROV_PARAM_STATUS          "status"              /* uint */
+#define OSSL_PROV_PARAM_SECURITY_CHECKS "security-checks"     /* uint */
 
 /* Self test callback parameters */
 #define OSSL_PROV_PARAM_SELF_TEST_PHASE  "st-phase" /* utf8_string */
@@ -99,7 +97,6 @@ extern "C" {
 #define OSSL_CIPHER_PARAM_CTS_MODE             "cts_mode"     /* utf8_string */
 /* For passing the AlgorithmIdentifier parameter in DER form */
 #define OSSL_CIPHER_PARAM_ALGORITHM_ID_PARAMS  "alg_id_param" /* octet_string */
-#define OSSL_CIPHER_PARAM_XTS_STANDARD         "xts_standard" /* utf8_string */
 
 #define OSSL_CIPHER_PARAM_TLS1_MULTIBLOCK_MAX_SEND_FRAGMENT                    \
     "tls1multi_maxsndfrag" /* uint */
@@ -122,11 +119,6 @@ extern "C" {
 #define OSSL_CIPHER_CTS_MODE_CS1 "CS1"
 #define OSSL_CIPHER_CTS_MODE_CS2 "CS2"
 #define OSSL_CIPHER_CTS_MODE_CS3 "CS3"
-
-/* Known CIPHER names (not a complete list) */
-#define OSSL_CIPHER_NAME_AES_128_GCM_SIV      "AES-128-GCM-SIV"
-#define OSSL_CIPHER_NAME_AES_192_GCM_SIV      "AES-192-GCM-SIV"
-#define OSSL_CIPHER_NAME_AES_256_GCM_SIV      "AES-256-GCM-SIV"
 
 /* digest parameters */
 #define OSSL_DIGEST_PARAM_XOFLEN       "xoflen"        /* size_t */
@@ -225,21 +217,12 @@ extern "C" {
 #define OSSL_KDF_PARAM_PKCS12_ID    "id"        /* int */
 #define OSSL_KDF_PARAM_KBKDF_USE_L  "use-l"             /* int */
 #define OSSL_KDF_PARAM_KBKDF_USE_SEPARATOR  "use-separator"     /* int */
-#define OSSL_KDF_PARAM_KBKDF_R      "r"         /* int */
 #define OSSL_KDF_PARAM_X942_ACVPINFO        "acvp-info"
 #define OSSL_KDF_PARAM_X942_PARTYUINFO      "partyu-info"
 #define OSSL_KDF_PARAM_X942_PARTYVINFO      "partyv-info"
 #define OSSL_KDF_PARAM_X942_SUPP_PUBINFO    "supp-pubinfo"
 #define OSSL_KDF_PARAM_X942_SUPP_PRIVINFO   "supp-privinfo"
 #define OSSL_KDF_PARAM_X942_USE_KEYBITS     "use-keybits"
-#define OSSL_KDF_PARAM_HMACDRBG_ENTROPY     "entropy"
-#define OSSL_KDF_PARAM_HMACDRBG_NONCE       "nonce"
-#define OSSL_KDF_PARAM_THREADS        "threads"     /* uint32_t */
-#define OSSL_KDF_PARAM_EARLY_CLEAN    "early_clean" /* uint32_t */
-#define OSSL_KDF_PARAM_ARGON2_AD      "ad"          /* octet string */
-#define OSSL_KDF_PARAM_ARGON2_LANES   "lanes"       /* uint32_t */
-#define OSSL_KDF_PARAM_ARGON2_MEMCOST "memcost"     /* uint32_t */
-#define OSSL_KDF_PARAM_ARGON2_VERSION "version"     /* uint32_t */
 
 /* Known KDF names */
 #define OSSL_KDF_NAME_HKDF           "HKDF"
@@ -255,7 +238,6 @@ extern "C" {
 #define OSSL_KDF_NAME_X963KDF        "X963KDF"
 #define OSSL_KDF_NAME_KBKDF          "KBKDF"
 #define OSSL_KDF_NAME_KRB5KDF        "KRB5KDF"
-#define OSSL_KDF_NAME_HMACDRBGKDF    "HMAC-DRBG-KDF"
 
 /* Known RAND names */
 #define OSSL_RAND_PARAM_STATE                   "state"
@@ -310,7 +292,6 @@ extern "C" {
 #define OSSL_PKEY_PARAM_DIST_ID             "distid"
 #define OSSL_PKEY_PARAM_PUB_KEY             "pub"
 #define OSSL_PKEY_PARAM_PRIV_KEY            "priv"
-#define OSSL_PKEY_PARAM_IMPLICIT_REJECTION  "implicit-rejection"
 
 /* Diffie-Hellman/DSA Parameters */
 #define OSSL_PKEY_PARAM_FFC_P               "p"
@@ -416,7 +397,6 @@ extern "C" {
 #define OSSL_PKEY_RSA_PSS_SALT_LEN_DIGEST "digest"
 #define OSSL_PKEY_RSA_PSS_SALT_LEN_MAX    "max"
 #define OSSL_PKEY_RSA_PSS_SALT_LEN_AUTO   "auto"
-#define OSSL_PKEY_RSA_PSS_SALT_LEN_AUTO_DIGEST_MAX "auto-digestmax"
 
 /* Key generation parameters */
 #define OSSL_PKEY_PARAM_RSA_BITS             OSSL_PKEY_PARAM_BITS
@@ -426,9 +406,6 @@ extern "C" {
 #define OSSL_PKEY_PARAM_RSA_MASKGENFUNC      OSSL_PKEY_PARAM_MASKGENFUNC
 #define OSSL_PKEY_PARAM_RSA_MGF1_DIGEST      OSSL_PKEY_PARAM_MGF1_DIGEST
 #define OSSL_PKEY_PARAM_RSA_PSS_SALTLEN      "saltlen"
-
-/* EC, X25519 and X448 Key generation parameters */
-#define OSSL_PKEY_PARAM_DHKEM_IKM        "dhkem-ikm"
 
 /* Key generation parameters */
 #define OSSL_PKEY_PARAM_FFC_TYPE         "type"
@@ -474,9 +451,6 @@ extern "C" {
 #define OSSL_SIGNATURE_PARAM_MGF1_PROPERTIES    \
     OSSL_PKEY_PARAM_MGF1_PROPERTIES
 #define OSSL_SIGNATURE_PARAM_DIGEST_SIZE        OSSL_PKEY_PARAM_DIGEST_SIZE
-#define OSSL_SIGNATURE_PARAM_NONCE_TYPE         "nonce-type"
-#define OSSL_SIGNATURE_PARAM_INSTANCE           "instance"
-#define OSSL_SIGNATURE_PARAM_CONTEXT_STRING     "context-string"
 
 /* Asym cipher parameters */
 #define OSSL_ASYM_CIPHER_PARAM_DIGEST                   OSSL_PKEY_PARAM_DIGEST
@@ -493,7 +467,6 @@ extern "C" {
 #define OSSL_ASYM_CIPHER_PARAM_OAEP_LABEL               "oaep-label"
 #define OSSL_ASYM_CIPHER_PARAM_TLS_CLIENT_VERSION       "tls-client-version"
 #define OSSL_ASYM_CIPHER_PARAM_TLS_NEGOTIATED_VERSION   "tls-negotiated-version"
-#define OSSL_ASYM_CIPHER_PARAM_IMPLICIT_REJECTION       "implicit-rejection"
 
 /*
  * Encoder / decoder parameters
@@ -528,11 +501,9 @@ extern "C" {
 
 /* KEM parameters */
 #define OSSL_KEM_PARAM_OPERATION            "operation"
-#define OSSL_KEM_PARAM_IKME                 "ikme"
 
 /* OSSL_KEM_PARAM_OPERATION values */
 #define OSSL_KEM_PARAM_OPERATION_RSASVE     "RSASVE"
-#define OSSL_KEM_PARAM_OPERATION_DHKEM      "DHKEM"
 
 /* Capabilities */
 
@@ -547,21 +518,6 @@ extern "C" {
 #define OSSL_CAPABILITY_TLS_GROUP_MAX_TLS           "tls-max-tls"
 #define OSSL_CAPABILITY_TLS_GROUP_MIN_DTLS          "tls-min-dtls"
 #define OSSL_CAPABILITY_TLS_GROUP_MAX_DTLS          "tls-max-dtls"
-
-/* TLS-SIGALG Capability */
-#define OSSL_CAPABILITY_TLS_SIGALG_IANA_NAME         "tls-sigalg-iana-name"
-#define OSSL_CAPABILITY_TLS_SIGALG_CODE_POINT        "tls-sigalg-code-point"
-#define OSSL_CAPABILITY_TLS_SIGALG_NAME              "tls-sigalg-name"
-#define OSSL_CAPABILITY_TLS_SIGALG_OID               "tls-sigalg-oid"
-#define OSSL_CAPABILITY_TLS_SIGALG_SIG_NAME          "tls-sigalg-sig-name"
-#define OSSL_CAPABILITY_TLS_SIGALG_SIG_OID           "tls-sigalg-sig-oid"
-#define OSSL_CAPABILITY_TLS_SIGALG_HASH_NAME         "tls-sigalg-hash-name"
-#define OSSL_CAPABILITY_TLS_SIGALG_HASH_OID          "tls-sigalg-hash-oid"
-#define OSSL_CAPABILITY_TLS_SIGALG_KEYTYPE           "tls-sigalg-keytype"
-#define OSSL_CAPABILITY_TLS_SIGALG_KEYTYPE_OID       "tls-sigalg-keytype-oid"
-#define OSSL_CAPABILITY_TLS_SIGALG_SECURITY_BITS     "tls-sigalg-sec-bits"
-#define OSSL_CAPABILITY_TLS_SIGALG_MIN_TLS           "tls-min-tls"
-#define OSSL_CAPABILITY_TLS_SIGALG_MAX_TLS           "tls-max-tls"
 
 /*-
  * storemgmt parameters
@@ -592,20 +548,6 @@ extern "C" {
 #define OSSL_STORE_PARAM_PROPERTIES "properties"   /* utf8_string */
 /* OSSL_DECODER input type if a decoder is used by the store */
 #define OSSL_STORE_PARAM_INPUT_TYPE "input-type"   /* UTF8_STRING */
-
-
-/* Libssl record layer */
-
-#define OSSL_LIBSSL_RECORD_LAYER_PARAM_OPTIONS        "options"
-#define OSSL_LIBSSL_RECORD_LAYER_PARAM_MODE           "mode"
-#define OSSL_LIBSSL_RECORD_LAYER_PARAM_READ_AHEAD     "read_ahead"
-#define OSSL_LIBSSL_RECORD_LAYER_READ_BUFFER_LEN      "read_buffer_len"
-#define OSSL_LIBSSL_RECORD_LAYER_PARAM_USE_ETM        "use_etm"
-#define OSSL_LIBSSL_RECORD_LAYER_PARAM_STREAM_MAC     "stream_mac"
-#define OSSL_LIBSSL_RECORD_LAYER_PARAM_TLSTREE        "tlstree"
-#define OSSL_LIBSSL_RECORD_LAYER_PARAM_MAX_FRAG_LEN   "max_frag_len"
-#define OSSL_LIBSSL_RECORD_LAYER_PARAM_MAX_EARLY_DATA "max_early_data"
-#define OSSL_LIBSSL_RECORD_LAYER_PARAM_BLOCK_PADDING  "block_padding"
 
 # ifdef __cplusplus
 }
