@@ -17,7 +17,7 @@ include_directories(skynet/3rd/lua/
                     3rd/core/recastnavigation/DetourCrowd/Include/
                     3rd/core/recastnavigation/DetourTileCache/Include/
                     3rd/core/recastnavigation/Recast/Include/
-                    3rd/core/openssl/include/)
+                )
 
 aux_source_directory(3rd/core/recastnavigation/Detour/Source Detour_SRC)
 aux_source_directory(3rd/core/recastnavigation/DetourCrowd/Source DetourCrowd_SRC)
@@ -28,14 +28,6 @@ aux_source_directory(3rd/core/recastnavigation/Recast/Source Recast_SRC)
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     message(STATUS "current platform: Linux")
     add_compile_definitions(NOUSE_JEMALLOC LUA_USE_LINUX LUA_USE_READLINE)
-
-    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-        find_library(SSL ssl 3rd/core/openssl/lib/linux/x64/)
-        find_library(CRYPTO crypto 3rd/core/openssl/lib/linux/x64/)
-    elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
-        find_library(SSL ssl 3rd/core/openssl/lib/linux/x86/)
-        find_library(CRYPTO crypto 3rd/core/openssl/lib/linux/x86/)
-    endif()
 
     # 添加编译选项
     add_compile_options(-g)
@@ -117,10 +109,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     aux_source_directory(skynet/3rd/lpeg LPEG_SRC)
     add_library(lpeg SHARED ${LPEG_SRC})
 
-    # 生成动态库 ltls.so
-    add_library(ltls SHARED skynet/lualib-src/ltls.c)
-    target_link_libraries(ltls ${SSL})
-
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
     add_library(pb SHARED ${PB_SRC})
@@ -153,7 +141,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     add_library(lualog SHARED ${LUALOG_SRC})
     target_link_libraries(lualog m pthread dl)
 
-    set_target_properties(lpeg sproto client md5 bson ltls
+    set_target_properties(lpeg sproto client md5 bson
         pb lfs fmt yyjson zset aoi navmesh lualog
         PROPERTIES
         PREFIX ""
@@ -165,14 +153,6 @@ endif ()
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     message(STATUS "current platform: Windows")
     add_compile_definitions(NOUSE_JEMALLOC LUA_BUILD_AS_DLL)
-
-    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-        find_library(SSL ssl 3rd/core/openssl/lib/windows/x64/)
-        find_library(CRYPTO crypto 3rd/core/openssl/lib/windows/x64/)
-    elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
-        find_library(SSL ssl 3rd/core/openssl/lib/windows/x86/)
-        find_library(CRYPTO crypto 3rd/core/openssl/lib/windows/x86/)
-    endif()
 
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion -Wno-implicit-function-declaration -Wno-deprecated-declarations")
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
@@ -251,10 +231,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(lpeg SHARED ${LPEG_SRC})
     target_link_libraries(lpeg liblua)
 
-    # 生成动态库 ltls.so
-    add_library(ltls SHARED skynet/lualib-src/ltls.c)
-    target_link_libraries(ltls liblua ${SSL})
-
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
     add_library(pb SHARED ${PB_SRC})
@@ -295,7 +271,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(navmesh SHARED ${NAVMESH_SRC} ${Detour_SRC} ${DetourCrowd_SRC} ${DetourTileCache_SRC} ${Recast_SRC})
     target_link_libraries(navmesh liblua)
 
-    set_target_properties(lpeg sproto client md5 bson skynetso ltls
+    set_target_properties(lpeg sproto client md5 bson skynetso
         pb lfs fmt yyjson zset aoi navmesh lualog
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
@@ -329,9 +305,6 @@ endif ()
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     message(STATUS "current platform: Mac OS X")
     add_compile_definitions(NOUSE_JEMALLOC LUA_USE_MACOSX LUA_USE_READLINE)
-
-    find_library(SSL ssl 3rd/core/openssl/lib/mac/)
-    find_library(CRYPTO crypto 3rd/core/openssl/lib/mac/)
 
     set(CMAKE_C_FLAGS  " -O2 -Wall" )
     set(CMAKE_SHARED_LINKER_FLAGS " -fPIC -dynamiclib -Wl,-undefined,dynamic_lookup")
@@ -404,10 +377,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     aux_source_directory(skynet/3rd/lpeg LPEG_SRC)
     add_library(lpeg SHARED ${LPEG_SRC})
 
-    # 生成动态库 ltls.so
-    add_library(ltls SHARED skynet/lualib-src/ltls.c)
-    target_link_libraries(ltls ${SSL})
-
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
     add_library(pb SHARED ${PB_SRC})
@@ -441,7 +410,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     add_library(lualog SHARED ${LUALOG_SRC})
     target_link_libraries(lualog m pthread dl)
 
-    set_target_properties(lpeg sproto client md5 bson ltls
+    set_target_properties(lpeg sproto client md5 bson
         pb lfs fmt yyjson zset aoi navmesh lualog
         PROPERTIES
         PREFIX ""
