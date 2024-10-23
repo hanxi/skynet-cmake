@@ -7,9 +7,7 @@
 
 #include "aoi.hpp"
 
-#define LUA_LIB
-
-#define METANAME "laoi"
+#define METANAME "__laoi"
 
 struct aoi_object {
     using handle_type = int64_t;
@@ -228,10 +226,11 @@ static int laoi_create(lua_State* L) {
     return 1;
 }
 
-extern "C" {
-LUALIB_API int luaopen_aoi(lua_State* L) {
-    luaL_Reg l[] = { { "new", laoi_create }, { NULL, NULL } };
-    luaL_newlib(L, l);
-    return 1;
-}
+extern "C" 
+{
+    int luaopen_aoi(lua_State* L) {
+        luaL_Reg l[] = { { "new", laoi_create }, { NULL, NULL } };
+        luaL_newlib(L, l);
+        return 1;
+    }
 }

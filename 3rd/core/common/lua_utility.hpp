@@ -1,10 +1,10 @@
 #pragma once
+#include "lua.hpp"
 #include <cassert>
 #include <string>
 #include <string_view>
 #include <type_traits>
 #include <vector>
-#include <lua.hpp>
 
 #define luaL_rawsetfield(L, tbindex, kname, valueexp) \
     lua_pushliteral(L, kname); \

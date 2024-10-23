@@ -3,8 +3,6 @@
 #include <cstring>
 #include <exception>
 #include <string>
-
-
 namespace moon {
 class logic_error: public std::runtime_error {
 private:

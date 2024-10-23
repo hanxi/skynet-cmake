@@ -55,11 +55,11 @@ inline int moon_vsnprintf(char* buffer, size_t count, const char* format, va_lis
     return vsnprintf_s(buffer, count, _TRUNCATE, format, argptr);
 }
 
-    #ifdef _WIN64
-typedef __int64 ssize_t;
-    #else
-typedef _W64 int ssize_t;
-    #endif
+//     #ifdef _WIN64
+// typedef __int64 ssize_t;
+//     #else
+// typedef _W64 int ssize_t;
+//     #endif
 #else
     #include <sys/syscall.h>
     #include <unistd.h>
@@ -274,6 +274,14 @@ inline typename std::enable_if_t<enum_enable_bitmask_operators<Enum>::enable, En
 operator&(Enum a, Enum b) {
     return static_cast<Enum>(
         static_cast<std::underlying_type_t<Enum>>(a) & static_cast<std::underlying_type_t<Enum>>(b)
+    );
+}
+
+template<typename Enum>
+inline typename std::enable_if_t<enum_enable_bitmask_operators<Enum>::enable, Enum>
+enum_unset_bitmask(Enum mask, Enum value) {
+    return static_cast<Enum>(
+        static_cast<std::underlying_type_t<Enum>>(mask) & ~static_cast<std::underlying_type_t<Enum>>(value)
     );
 }
 

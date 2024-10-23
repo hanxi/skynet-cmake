@@ -8,21 +8,20 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 把lua头文件添加到全局搜索路径 TODO:找时间去掉 luakit
+# 把lua头文件添加到全局搜索路径
 include_directories(skynet/3rd/lua/
                     3rd/core/common/
-                    3rd/core/luakit/include/
-                    3rd/core/fmt/include/
+                    3rd/core/glm/include/
                     3rd/core/recastnavigation/Detour/Include/
                     3rd/core/recastnavigation/DetourCrowd/Include/
                     3rd/core/recastnavigation/DetourTileCache/Include/
-                    3rd/core/recastnavigation/Recast/Include/
-                )
+                    3rd/core/recastnavigation/Recast/Include/ )
 
 aux_source_directory(3rd/core/recastnavigation/Detour/Source Detour_SRC)
 aux_source_directory(3rd/core/recastnavigation/DetourCrowd/Source DetourCrowd_SRC)
 aux_source_directory(3rd/core/recastnavigation/DetourTileCache/Source DetourTileCache_SRC)
 aux_source_directory(3rd/core/recastnavigation/Recast/Source Recast_SRC)
+
 
 # Linux
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -134,15 +133,21 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     add_library(aoi SHARED ${AOI_SRC})
 
     # 生成动态库 navmesh.so
-    add_library(navmesh SHARED ${NAVMESH_SRC} ${Detour_SRC} ${DetourCrowd_SRC} ${DetourTileCache_SRC} ${Recast_SRC})
+    add_library(navmesh SHARED ${NAVMESH_SRC} 
+                            ${Detour_SRC} ${DetourCrowd_SRC}
+                            ${DetourTileCache_SRC} ${Recast_SRC})
+    # 生成动态库 math3d.so
+    aux_source_directory(3rd/luaclib/math3d MATH3D_SRC)
+    add_library(math3d SHARED ${MATH3D_SRC})
+    target_compile_definitions(math3d PUBLIC -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_QUAT_DATA_XYZW)
 
-    # 生成动态库 lualog.so
-    aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
-    add_library(lualog SHARED ${LUALOG_SRC})
-    target_link_libraries(lualog m pthread dl)
+    # # 生成动态库 lualog.so
+    # aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
+    # add_library(lualog SHARED ${LUALOG_SRC})
+    # target_link_libraries(lualog m pthread dl)
 
     set_target_properties(lpeg sproto client md5 bson
-        pb lfs fmt yyjson zset aoi navmesh lualog
+        pb lfs fmt yyjson zset aoi navmesh math3d
         PROPERTIES
         PREFIX ""
         SUFFIX .so
@@ -256,11 +261,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(zset SHARED ${ZSET_SRC})
     target_link_libraries(zset liblua)
 
-    # 生成动态库 lualog.so
-    aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
-    add_library(lualog SHARED ${LUALOG_SRC})
-    target_link_libraries(lualog ws2_32 liblua libposix pthreadVC3)
-
     # 生成动态库 aoi.so
     aux_source_directory(3rd/luaclib/lua-aoi AOI_SRC)
     add_library(aoi SHARED ${AOI_SRC})
@@ -268,11 +268,23 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
     # 生成动态库 navmesh.so
     aux_source_directory(3rd/luaclib/lua-navmesh NAVMESH_SRC)
-    add_library(navmesh SHARED ${NAVMESH_SRC} ${Detour_SRC} ${DetourCrowd_SRC} ${DetourTileCache_SRC} ${Recast_SRC})
+    add_library(navmesh SHARED ${NAVMESH_SRC}
+                    ${Detour_SRC} ${DetourCrowd_SRC}
+                    ${DetourTileCache_SRC} ${Recast_SRC})
     target_link_libraries(navmesh liblua)
 
+    # 生成动态库 math3d.so
+    aux_source_directory(3rd/luaclib/math3d MATH3D_SRC)
+    add_library(math3d SHARED ${MATH3D_SRC})
+    target_compile_definitions(math3d PUBLIC -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_QUAT_DATA_XYZW)
+
+    # # 生成动态库 lualog.so
+    # aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
+    # add_library(lualog SHARED ${LUALOG_SRC})
+    # target_link_libraries(lualog ws2_32 liblua libposix pthreadVC3)
+
     set_target_properties(lpeg sproto client md5 bson skynetso
-        pb lfs fmt yyjson zset aoi navmesh lualog
+        pb lfs fmt yyjson zset aoi navmesh math3d
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
@@ -348,8 +360,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
         skynet/lualib-src/lua-stm.c
         skynet/lualib-src/lua-debugchannel.c
         skynet/lualib-src/lua-datasheet.c
-        skynet/lualib-src/lua-sharetable.c
-        )
+        skynet/lualib-src/lua-sharetable.c )
     add_library(skynetso SHARED ${LUA_CLIB_SKYNET_SRC})
     target_include_directories(skynetso PRIVATE skynet/skynet-src skynet/lualib-src)
     set_target_properties(skynetso PROPERTIES OUTPUT_NAME skynet)
@@ -403,15 +414,23 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
     # 生成动态库 navmesh.so
     aux_source_directory(3rd/luaclib/lua-navmesh NAVMESH_SRC)
-    add_library(navmesh SHARED ${NAVMESH_SRC} ${Detour_SRC} ${DetourCrowd_SRC} ${DetourTileCache_SRC} ${Recast_SRC})
+    add_library(navmesh SHARED ${NAVMESH_SRC} 
+                                ${Detour_SRC} ${DetourCrowd_SRC}
+                                ${DetourTileCache_SRC} ${Recast_SRC} )
 
-    # 生成动态库 lualog.so
-    aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
-    add_library(lualog SHARED ${LUALOG_SRC})
-    target_link_libraries(lualog m pthread dl)
+    # 生成动态库 math3d.so
+    aux_source_directory(3rd/luaclib/math3d MATH3D_SRC)
+    add_library(math3d SHARED ${MATH3D_SRC})
+    target_compile_definitions(math3d PRIVATE -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_QUAT_DATA_XYZW)
+
+    # 生成动态库 logrus.so
+    aux_source_directory(3rd/luaclib/lua-logrus LOGRUS_SRC)
+    add_library(logrus SHARED ${LOGRUS_SRC})
+    target_include_directories(logrus PRIVATE 3rd/core/spdlog/include/)
+    target_link_libraries(logrus m pthread dl)
 
     set_target_properties(lpeg sproto client md5 bson
-        pb lfs fmt yyjson zset aoi navmesh lualog
+        pb lfs fmt yyjson zset aoi navmesh math3d logrus
         PROPERTIES
         PREFIX ""
         SUFFIX .so
