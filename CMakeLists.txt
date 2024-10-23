@@ -141,13 +141,14 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     add_library(math3d SHARED ${MATH3D_SRC})
     target_compile_definitions(math3d PUBLIC -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_QUAT_DATA_XYZW)
 
-    # # 生成动态库 lualog.so
-    # aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
-    # add_library(lualog SHARED ${LUALOG_SRC})
-    # target_link_libraries(lualog m pthread dl)
+    # 生成动态库 logrus.so
+    aux_source_directory(3rd/luaclib/lua-logrus LOGRUS_SRC)
+    add_library(logrus SHARED ${LOGRUS_SRC})
+    target_include_directories(logrus PRIVATE 3rd/core/spdlog/include/)
+    target_link_libraries(logrus m pthread dl)
 
     set_target_properties(lpeg sproto client md5 bson
-        pb lfs fmt yyjson zset aoi navmesh math3d
+        pb lfs fmt yyjson zset aoi navmesh math3d logrus
         PROPERTIES
         PREFIX ""
         SUFFIX .so
@@ -277,14 +278,16 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     aux_source_directory(3rd/luaclib/math3d MATH3D_SRC)
     add_library(math3d SHARED ${MATH3D_SRC})
     target_compile_definitions(math3d PUBLIC -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_QUAT_DATA_XYZW)
+    target_link_libraries(math3d liblua)
 
-    # # 生成动态库 lualog.so
-    # aux_source_directory(3rd/luaclib/lualog LUALOG_SRC)
-    # add_library(lualog SHARED ${LUALOG_SRC})
-    # target_link_libraries(lualog ws2_32 liblua libposix pthreadVC3)
+    # 生成动态库 logrus.so
+    aux_source_directory(3rd/luaclib/lua-logrus LOGRUS_SRC)
+    add_library(logrus SHARED ${LOGRUS_SRC})
+    target_include_directories(logrus PRIVATE 3rd/core/spdlog/include/)
+    target_link_libraries(logrus ws2_32 liblua libposix pthreadVC3)
 
     set_target_properties(lpeg sproto client md5 bson skynetso
-        pb lfs fmt yyjson zset aoi navmesh math3d
+        pb lfs fmt yyjson zset aoi navmesh math3d logrus
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib

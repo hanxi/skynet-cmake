@@ -7,11 +7,9 @@
 #include <float.h>
 #include <assert.h>
 
-#ifndef _MSC_VER
 #ifndef M_PI
 #define M_PI (3.14159265358979323846)
 #endif
-#endif // !_MSC_VER
 
 #include "mathid.h"	
 #include "math3d.h"
