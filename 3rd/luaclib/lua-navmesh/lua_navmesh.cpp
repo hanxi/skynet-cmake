@@ -1,7 +1,7 @@
-#include "lua_utility.hpp"
+#include <lua_utility.hpp>
 #include "navmesh.hpp"
 
-#define METANAME "lnavmesh"
+#define METANAME "__lnavmesh"
 
 using navmesh_type = moon::navmesh;
 
@@ -210,10 +210,11 @@ static int lcreate(lua_State* L) {
     return 2;
 }
 
-extern "C" {
-int LUAMOD_API luaopen_navmesh(lua_State* L) {
-    luaL_Reg l[] = { { "new", lcreate }, { "load_static", load_static }, { NULL, NULL } };
-    luaL_newlib(L, l);
-    return 1;
-}
+extern "C" 
+{
+    int luaopen_navmesh(lua_State* L) {
+        luaL_Reg l[] = { { "new", lcreate }, { "load_static", load_static }, { NULL, NULL } };
+        luaL_newlib(L, l);
+        return 1;
+    }
 }
