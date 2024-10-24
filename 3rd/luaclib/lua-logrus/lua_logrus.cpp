@@ -103,7 +103,7 @@ static int logrus_hex(lua_State *L)
 
 static int logrus_create(lua_State *L)
 {
-    std::string logname = luaL_optstring(L, 1, "logrus");
+    std::string logname = luaL_optstring(L, 1, "skynet");
     std::string filename = luaL_optstring(L, 2, "skynet");
 
     Logrus *p = (Logrus *)lua_newuserdatauv(L, sizeof(Logrus), 0);
