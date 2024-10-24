@@ -1,6 +1,3 @@
-//
-// Created by alexander tavares miro on 4/8/22.
-//
 #include "LogImpl.h"
 
 #include <spdlog/async.h>
