@@ -243,11 +243,11 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(lpeg SHARED ${LPEG_SRC})
     target_link_libraries(lpeg liblua)
 
-    # 生成动态库 ltls.so
-    add_library(ltls SHARED skynet/lualib-src/ltls.c)
-    target_include_directories(ltls PRIVATE 3rd/core/openssl/include/)
-    target_link_directories(ltls PRIVATE 3rd/core/openssl/lib/windows/)
-    target_link_libraries(ltls liblua libssl libcrypto)
+    # # 生成动态库 ltls.so
+    # add_library(ltls SHARED skynet/lualib-src/ltls.c)
+    # target_include_directories(ltls PRIVATE 3rd/core/openssl/include/)
+    # target_link_directories(ltls PRIVATE 3rd/core/openssl/lib/windows/)
+    # target_link_libraries(ltls liblua libssl libcrypto)
 
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
@@ -298,7 +298,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     target_include_directories(logrus PRIVATE 3rd/core/spdlog/include/)
     target_link_libraries(logrus ws2_32 liblua libposix pthreadVC3)
 
-    set_target_properties(lpeg sproto client md5 bson skynetso ltls
+    set_target_properties(lpeg sproto client md5 bson skynetso
         pb lfs fmt yyjson zset aoi navmesh math3d logrus
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
