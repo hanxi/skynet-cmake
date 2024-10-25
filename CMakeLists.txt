@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.10)
 
 project(skynet)
 
-#请确保系统为64位
 # 添加编译选项
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -11,17 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 把lua头文件添加到全局搜索路径
 include_directories(skynet/3rd/lua/
-                    3rd/core/common/
-                    3rd/core/glm/include/
-                    3rd/core/recastnavigation/Detour/Include/
-                    3rd/core/recastnavigation/DetourCrowd/Include/
-                    3rd/core/recastnavigation/DetourTileCache/Include/
-                    3rd/core/recastnavigation/Recast/Include/ )
-
-aux_source_directory(3rd/core/recastnavigation/Detour/Source Detour_SRC)
-aux_source_directory(3rd/core/recastnavigation/DetourCrowd/Source DetourCrowd_SRC)
-aux_source_directory(3rd/core/recastnavigation/DetourTileCache/Source DetourTileCache_SRC)
-aux_source_directory(3rd/core/recastnavigation/Recast/Source Recast_SRC)
+                    3rd/core/common/ )
 
 # Linux
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -139,12 +128,24 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     add_library(aoi SHARED ${AOI_SRC})
 
     # 生成动态库 navmesh.so
+    aux_source_directory(3rd/luaclib/lua-navmesh NAVMESH_SRC)
+    aux_source_directory(3rd/core/recastnavigation/Detour/Source Detour_SRC)
+    aux_source_directory(3rd/core/recastnavigation/DetourCrowd/Source DetourCrowd_SRC)
+    aux_source_directory(3rd/core/recastnavigation/DetourTileCache/Source DetourTileCache_SRC)
+    aux_source_directory(3rd/core/recastnavigation/Recast/Source Recast_SRC)
     add_library(navmesh SHARED ${NAVMESH_SRC} 
                             ${Detour_SRC} ${DetourCrowd_SRC}
                             ${DetourTileCache_SRC} ${Recast_SRC})
+    target_include_directories(navmesh PRIVATE 
+                        3rd/core/recastnavigation/Detour/Include/
+                        3rd/core/recastnavigation/DetourCrowd/Include/
+                        3rd/core/recastnavigation/DetourTileCache/Include/
+                        3rd/core/recastnavigation/Recast/Include/)
+
     # 生成动态库 math3d.so
     aux_source_directory(3rd/luaclib/math3d MATH3D_SRC)
     add_library(math3d SHARED ${MATH3D_SRC})
+    target_include_directories(math3d PRIVATE 3rd/core/glm/include/)
     target_compile_definitions(math3d PUBLIC -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_QUAT_DATA_XYZW)
 
     # 生成动态库 logrus.so
@@ -281,14 +282,24 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
     # 生成动态库 navmesh.so
     aux_source_directory(3rd/luaclib/lua-navmesh NAVMESH_SRC)
+    aux_source_directory(3rd/core/recastnavigation/Detour/Source Detour_SRC)
+    aux_source_directory(3rd/core/recastnavigation/DetourCrowd/Source DetourCrowd_SRC)
+    aux_source_directory(3rd/core/recastnavigation/DetourTileCache/Source DetourTileCache_SRC)
+    aux_source_directory(3rd/core/recastnavigation/Recast/Source Recast_SRC)
     add_library(navmesh SHARED ${NAVMESH_SRC}
                     ${Detour_SRC} ${DetourCrowd_SRC}
                     ${DetourTileCache_SRC} ${Recast_SRC})
+    target_include_directories(navmesh PRIVATE 
+                    3rd/core/recastnavigation/Detour/Include/
+                    3rd/core/recastnavigation/DetourCrowd/Include/
+                    3rd/core/recastnavigation/DetourTileCache/Include/
+                    3rd/core/recastnavigation/Recast/Include/)
     target_link_libraries(navmesh liblua)
 
     # 生成动态库 math3d.so
     aux_source_directory(3rd/luaclib/math3d MATH3D_SRC)
     add_library(math3d SHARED ${MATH3D_SRC})
+    target_include_directories(math3d PRIVATE 3rd/core/glm/include/)
     target_compile_definitions(math3d PUBLIC -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_QUAT_DATA_XYZW)
     target_link_libraries(math3d liblua)
 
@@ -435,13 +446,22 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
     # 生成动态库 navmesh.so
     aux_source_directory(3rd/luaclib/lua-navmesh NAVMESH_SRC)
+    aux_source_directory(3rd/core/recastnavigation/Detour/Source Detour_SRC)
+    aux_source_directory(3rd/core/recastnavigation/DetourCrowd/Source DetourCrowd_SRC)
+    aux_source_directory(3rd/core/recastnavigation/DetourTileCache/Source DetourTileCache_SRC)
+    aux_source_directory(3rd/core/recastnavigation/Recast/Source Recast_SRC)
     add_library(navmesh SHARED ${NAVMESH_SRC} 
                                 ${Detour_SRC} ${DetourCrowd_SRC}
                                 ${DetourTileCache_SRC} ${Recast_SRC} )
-
+    target_include_directories(navmesh PRIVATE 
+                                3rd/core/recastnavigation/Detour/Include/
+                                3rd/core/recastnavigation/DetourCrowd/Include/
+                                3rd/core/recastnavigation/DetourTileCache/Include/
+                                3rd/core/recastnavigation/Recast/Include/)
     # 生成动态库 math3d.so
     aux_source_directory(3rd/luaclib/math3d MATH3D_SRC)
     add_library(math3d SHARED ${MATH3D_SRC})
+    target_include_directories(math3d PRIVATE 3rd/core/glm/include/)
     target_compile_definitions(math3d PRIVATE -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_QUAT_DATA_XYZW)
 
     # 生成动态库 logrus.so
