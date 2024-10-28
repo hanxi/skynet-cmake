@@ -10,18 +10,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 把lua头文件添加到全局搜索路径
 include_directories(skynet/3rd/lua/
-                    3rd/core/common/
-                    3rd/core/glm/include/
-                    3rd/core/recastnavigation/Detour/Include/
-                    3rd/core/recastnavigation/DetourCrowd/Include/
-                    3rd/core/recastnavigation/DetourTileCache/Include/
-                    3rd/core/recastnavigation/Recast/Include/ )
-
-aux_source_directory(3rd/core/recastnavigation/Detour/Source Detour_SRC)
-aux_source_directory(3rd/core/recastnavigation/DetourCrowd/Source DetourCrowd_SRC)
-aux_source_directory(3rd/core/recastnavigation/DetourTileCache/Source DetourTileCache_SRC)
-aux_source_directory(3rd/core/recastnavigation/Recast/Source Recast_SRC)
-
+                    3rd/core/sol/include/
+                    3rd/core/common/ )
 
 # Linux
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -108,6 +98,12 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     aux_source_directory(skynet/3rd/lpeg LPEG_SRC)
     add_library(lpeg SHARED ${LPEG_SRC})
 
+    # 生成动态库 ltls.so
+    add_library(ltls SHARED skynet/lualib-src/ltls.c)
+    target_include_directories(ltls PRIVATE 3rd/core/openssl/include/)
+    target_link_directories(ltls PRIVATE 3rd/core/openssl/lib/linux/)
+    target_link_libraries(ltls ssl crypto)
+
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
     add_library(pb SHARED ${PB_SRC})
@@ -133,13 +129,66 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     add_library(aoi SHARED ${AOI_SRC})
 
     # 生成动态库 navmesh.so
+    aux_source_directory(3rd/luaclib/lua-navmesh NAVMESH_SRC)
+    aux_source_directory(3rd/core/recastnavigation/Detour/Source Detour_SRC)
+    aux_source_directory(3rd/core/recastnavigation/DetourCrowd/Source DetourCrowd_SRC)
+    aux_source_directory(3rd/core/recastnavigation/DetourTileCache/Source DetourTileCache_SRC)
+    aux_source_directory(3rd/core/recastnavigation/Recast/Source Recast_SRC)
     add_library(navmesh SHARED ${NAVMESH_SRC} 
                             ${Detour_SRC} ${DetourCrowd_SRC}
                             ${DetourTileCache_SRC} ${Recast_SRC})
+    target_include_directories(navmesh PRIVATE 
+                        3rd/core/recastnavigation/Detour/Include/
+                        3rd/core/recastnavigation/DetourCrowd/Include/
+                        3rd/core/recastnavigation/DetourTileCache/Include/
+                        3rd/core/recastnavigation/Recast/Include/)
+
     # 生成动态库 math3d.so
     aux_source_directory(3rd/luaclib/math3d MATH3D_SRC)
     add_library(math3d SHARED ${MATH3D_SRC})
+    target_include_directories(math3d PRIVATE 3rd/core/glm/include/)
     target_compile_definitions(math3d PUBLIC -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_QUAT_DATA_XYZW)
+
+    # 生成动态库 rp3d.so
+    aux_source_directory(3rd/luaclib/lua-rp3d RP3D_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/body/ RP3D_body_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/collision/ RP3D_collision_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/collision/broadphase/ RP3D_collision_broadphase_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/collision/narrowphase/ RP3D_collision_narrowphase_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/collision/narrowphase/GJK/ RP3D_collision_narrowphase_GJK_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/collision/narrowphase/SAT/ RP3D_collision_narrowphase_SAT_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/collision/shapes/ RP3D_collision_shapes_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/components/ RP3D_components_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/constraint/ RP3D_constraint_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/engine/ RP3D_engine_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/mathematics/ RP3D_mathematics_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/memory/ RP3D_memory_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/systems/ RP3D_systems_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/utils/ RP3D_utils_SRC)
+    add_library(rp3d SHARED ${RP3D_SRC} ${RP3D_body_SRC} 
+                ${RP3D_collision_SRC}  ${RP3D_collision_broadphase_SRC}
+                ${RP3D_collision_narrowphase_SRC} ${RP3D_collision_narrowphase_GJK_SRC}
+                ${RP3D_collision_narrowphase_SAT_SRC} ${RP3D_collision_shapes_SRC}
+                ${RP3D_components_SRC} ${RP3D_constraint_SRC}
+                ${RP3D_engine_SRC} ${RP3D_mathematics_SRC} 
+                ${RP3D_memory_SRC} ${RP3D_systems_SRC} ${RP3D_utils_SRC} )
+    target_include_directories(rp3d PRIVATE 
+                3rd/core/reactphysics3d/include/
+                3rd/core/reactphysics3d/include/reactphysics3d/body/
+                3rd/core/reactphysics3d/include/reactphysics3d/collision/
+                3rd/core/reactphysics3d/include/reactphysics3d/collision/broadphase/
+                3rd/core/reactphysics3d/include/reactphysics3d/collision/narrowphase/
+                3rd/core/reactphysics3d/include/reactphysics3d/collision/narrowphase/GJK/
+                3rd/core/reactphysics3d/include/reactphysics3d/collision/narrowphase/SAT/
+                3rd/core/reactphysics3d/include/reactphysics3d/collision/shapes/
+                3rd/core/reactphysics3d/include/reactphysics3d/components/
+                3rd/core/reactphysics3d/include/reactphysics3d/constraint/
+                3rd/core/reactphysics3d/include/reactphysics3d/containers/
+                3rd/core/reactphysics3d/include/reactphysics3d/engine/
+                3rd/core/reactphysics3d/include/reactphysics3d/mathematics/
+                3rd/core/reactphysics3d/include/reactphysics3d/memory/
+                3rd/core/reactphysics3d/include/reactphysics3d/systems/
+                3rd/core/reactphysics3d/include/reactphysics3d/utils/ )
 
     # 生成动态库 logrus.so
     aux_source_directory(3rd/luaclib/lua-logrus LOGRUS_SRC)
@@ -147,8 +196,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     target_include_directories(logrus PRIVATE 3rd/core/spdlog/include/)
     target_link_libraries(logrus m pthread dl)
 
-    set_target_properties(lpeg sproto client md5 bson
-        pb lfs fmt yyjson zset aoi navmesh math3d logrus
+    set_target_properties(lpeg sproto client md5 bson ltls
+        pb lfs fmt yyjson zset aoi navmesh math3d rp3d logrus
         PROPERTIES
         PREFIX ""
         SUFFIX .so
@@ -237,6 +286,12 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(lpeg SHARED ${LPEG_SRC})
     target_link_libraries(lpeg liblua)
 
+    # # 生成动态库 ltls.so
+    # add_library(ltls SHARED skynet/lualib-src/ltls.c)
+    # target_include_directories(ltls PRIVATE 3rd/core/openssl/include/)
+    # target_link_directories(ltls PRIVATE 3rd/core/openssl/lib/windows/)
+    # target_link_libraries(ltls liblua libssl libcrypto)
+
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
     add_library(pb SHARED ${PB_SRC})
@@ -269,16 +324,68 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
     # 生成动态库 navmesh.so
     aux_source_directory(3rd/luaclib/lua-navmesh NAVMESH_SRC)
+    aux_source_directory(3rd/core/recastnavigation/Detour/Source Detour_SRC)
+    aux_source_directory(3rd/core/recastnavigation/DetourCrowd/Source DetourCrowd_SRC)
+    aux_source_directory(3rd/core/recastnavigation/DetourTileCache/Source DetourTileCache_SRC)
+    aux_source_directory(3rd/core/recastnavigation/Recast/Source Recast_SRC)
     add_library(navmesh SHARED ${NAVMESH_SRC}
                     ${Detour_SRC} ${DetourCrowd_SRC}
                     ${DetourTileCache_SRC} ${Recast_SRC})
+    target_include_directories(navmesh PRIVATE 
+                    3rd/core/recastnavigation/Detour/Include/
+                    3rd/core/recastnavigation/DetourCrowd/Include/
+                    3rd/core/recastnavigation/DetourTileCache/Include/
+                    3rd/core/recastnavigation/Recast/Include/)
     target_link_libraries(navmesh liblua)
 
     # 生成动态库 math3d.so
     aux_source_directory(3rd/luaclib/math3d MATH3D_SRC)
     add_library(math3d SHARED ${MATH3D_SRC})
+    target_include_directories(math3d PRIVATE 3rd/core/glm/include/)
     target_compile_definitions(math3d PUBLIC -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_QUAT_DATA_XYZW)
     target_link_libraries(math3d liblua)
+
+    # 生成动态库 rp3d.so
+    aux_source_directory(3rd/luaclib/lua-rp3d RP3D_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/body/ RP3D_body_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/collision/ RP3D_collision_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/collision/broadphase/ RP3D_collision_broadphase_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/collision/narrowphase/ RP3D_collision_narrowphase_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/collision/narrowphase/GJK/ RP3D_collision_narrowphase_GJK_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/collision/narrowphase/SAT/ RP3D_collision_narrowphase_SAT_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/collision/shapes/ RP3D_collision_shapes_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/components/ RP3D_components_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/constraint/ RP3D_constraint_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/engine/ RP3D_engine_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/mathematics/ RP3D_mathematics_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/memory/ RP3D_memory_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/systems/ RP3D_systems_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/utils/ RP3D_utils_SRC)
+    add_library(rp3d SHARED ${RP3D_SRC} ${RP3D_body_SRC} 
+                ${RP3D_collision_SRC}  ${RP3D_collision_broadphase_SRC}
+                ${RP3D_collision_narrowphase_SRC} ${RP3D_collision_narrowphase_GJK_SRC}
+                ${RP3D_collision_narrowphase_SAT_SRC} ${RP3D_collision_shapes_SRC}
+                ${RP3D_components_SRC} ${RP3D_constraint_SRC} 
+                ${RP3D_engine_SRC} ${RP3D_mathematics_SRC}
+                ${RP3D_memory_SRC} ${RP3D_systems_SRC} ${RP3D_utils_SRC} )
+    target_include_directories(rp3d PRIVATE 
+                3rd/core/reactphysics3d/include/
+                3rd/core/reactphysics3d/include/reactphysics3d/body/
+                3rd/core/reactphysics3d/include/reactphysics3d/collision/
+                3rd/core/reactphysics3d/include/reactphysics3d/collision/broadphase/
+                3rd/core/reactphysics3d/include/reactphysics3d/collision/narrowphase/
+                3rd/core/reactphysics3d/include/reactphysics3d/collision/narrowphase/GJK/
+                3rd/core/reactphysics3d/include/reactphysics3d/collision/narrowphase/SAT/
+                3rd/core/reactphysics3d/include/reactphysics3d/collision/shapes/
+                3rd/core/reactphysics3d/include/reactphysics3d/components/
+                3rd/core/reactphysics3d/include/reactphysics3d/constraint/
+                3rd/core/reactphysics3d/include/reactphysics3d/containers/
+                3rd/core/reactphysics3d/include/reactphysics3d/engine/
+                3rd/core/reactphysics3d/include/reactphysics3d/mathematics/
+                3rd/core/reactphysics3d/include/reactphysics3d/memory/
+                3rd/core/reactphysics3d/include/reactphysics3d/systems/
+                3rd/core/reactphysics3d/include/reactphysics3d/utils/ )
+    target_link_libraries(rp3d liblua)
 
     # 生成动态库 logrus.so
     aux_source_directory(3rd/luaclib/lua-logrus LOGRUS_SRC)
@@ -287,7 +394,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     target_link_libraries(logrus ws2_32 liblua libposix pthreadVC3)
 
     set_target_properties(lpeg sproto client md5 bson skynetso
-        pb lfs fmt yyjson zset aoi navmesh math3d logrus
+        pb lfs fmt yyjson zset aoi navmesh math3d rp3d logrus
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
@@ -391,6 +498,12 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     aux_source_directory(skynet/3rd/lpeg LPEG_SRC)
     add_library(lpeg SHARED ${LPEG_SRC})
 
+    # 生成动态库 ltls.so
+    add_library(ltls SHARED skynet/lualib-src/ltls.c)
+    target_include_directories(ltls PRIVATE 3rd/core/openssl/include/)
+    target_link_directories(ltls PRIVATE 3rd/core/openssl/lib/mac/)
+    target_link_libraries(ltls ssl crypto)
+
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
     add_library(pb SHARED ${PB_SRC})
@@ -417,14 +530,63 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
     # 生成动态库 navmesh.so
     aux_source_directory(3rd/luaclib/lua-navmesh NAVMESH_SRC)
+    aux_source_directory(3rd/core/recastnavigation/Detour/Source Detour_SRC)
+    aux_source_directory(3rd/core/recastnavigation/DetourCrowd/Source DetourCrowd_SRC)
+    aux_source_directory(3rd/core/recastnavigation/DetourTileCache/Source DetourTileCache_SRC)
+    aux_source_directory(3rd/core/recastnavigation/Recast/Source Recast_SRC)
     add_library(navmesh SHARED ${NAVMESH_SRC} 
                                 ${Detour_SRC} ${DetourCrowd_SRC}
                                 ${DetourTileCache_SRC} ${Recast_SRC} )
-
+    target_include_directories(navmesh PRIVATE 
+                                3rd/core/recastnavigation/Detour/Include/
+                                3rd/core/recastnavigation/DetourCrowd/Include/
+                                3rd/core/recastnavigation/DetourTileCache/Include/
+                                3rd/core/recastnavigation/Recast/Include/)
     # 生成动态库 math3d.so
     aux_source_directory(3rd/luaclib/math3d MATH3D_SRC)
     add_library(math3d SHARED ${MATH3D_SRC})
+    target_include_directories(math3d PRIVATE 3rd/core/glm/include/)
     target_compile_definitions(math3d PRIVATE -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_QUAT_DATA_XYZW)
+
+    # 生成动态库 rp3d.so
+    aux_source_directory(3rd/luaclib/lua-rp3d RP3D_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/body/ RP3D_body_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/collision/ RP3D_collision_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/collision/broadphase/ RP3D_collision_broadphase_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/collision/narrowphase/ RP3D_collision_narrowphase_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/collision/narrowphase/GJK/ RP3D_collision_narrowphase_GJK_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/collision/narrowphase/SAT/ RP3D_collision_narrowphase_SAT_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/collision/shapes/ RP3D_collision_shapes_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/components/ RP3D_components_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/constraint/ RP3D_constraint_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/engine/ RP3D_engine_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/mathematics/ RP3D_mathematics_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/memory/ RP3D_memory_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/systems/ RP3D_systems_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/utils/ RP3D_utils_SRC)
+    add_library(rp3d SHARED ${RP3D_SRC} ${RP3D_body_SRC} 
+                ${RP3D_collision_SRC}  ${RP3D_collision_broadphase_SRC}
+                ${RP3D_collision_narrowphase_SRC} ${RP3D_collision_narrowphase_GJK_SRC}
+                ${RP3D_collision_narrowphase_SAT_SRC} ${RP3D_collision_shapes_SRC}
+                ${RP3D_components_SRC} ${RP3D_constraint_SRC}
+                ${RP3D_engine_SRC} ${RP3D_mathematics_SRC}
+                ${RP3D_memory_SRC} ${RP3D_systems_SRC} ${RP3D_utils_SRC} )
+    target_include_directories(rp3d PRIVATE 3rd/core/reactphysics3d/include/
+                3rd/core/reactphysics3d/include/reactphysics3d/body/
+                3rd/core/reactphysics3d/include/reactphysics3d/collision/
+                3rd/core/reactphysics3d/include/reactphysics3d/collision/broadphase/
+                3rd/core/reactphysics3d/include/reactphysics3d/collision/narrowphase/
+                3rd/core/reactphysics3d/include/reactphysics3d/collision/narrowphase/GJK/
+                3rd/core/reactphysics3d/include/reactphysics3d/collision/narrowphase/SAT/
+                3rd/core/reactphysics3d/include/reactphysics3d/collision/shapes/
+                3rd/core/reactphysics3d/include/reactphysics3d/components/
+                3rd/core/reactphysics3d/include/reactphysics3d/constraint/
+                3rd/core/reactphysics3d/include/reactphysics3d/containers/
+                3rd/core/reactphysics3d/include/reactphysics3d/engine/
+                3rd/core/reactphysics3d/include/reactphysics3d/mathematics/
+                3rd/core/reactphysics3d/include/reactphysics3d/memory/
+                3rd/core/reactphysics3d/include/reactphysics3d/systems/
+                3rd/core/reactphysics3d/include/reactphysics3d/utils/ )
 
     # 生成动态库 logrus.so
     aux_source_directory(3rd/luaclib/lua-logrus LOGRUS_SRC)
@@ -432,8 +594,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     target_include_directories(logrus PRIVATE 3rd/core/spdlog/include/)
     target_link_libraries(logrus m pthread dl)
 
-    set_target_properties(lpeg sproto client md5 bson
-        pb lfs fmt yyjson zset aoi navmesh math3d logrus
+    set_target_properties(lpeg sproto client md5 bson ltls
+        pb lfs fmt yyjson zset aoi navmesh math3d rp3d logrus
         PROPERTIES
         PREFIX ""
         SUFFIX .so

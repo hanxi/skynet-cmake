@@ -1,9 +1,10 @@
-
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <vector>
+
 #include <lua.hpp>
+
 
 #include "aoi.hpp"
 

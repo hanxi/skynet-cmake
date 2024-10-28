@@ -37,6 +37,8 @@ void LogManager::createLogger(const std::string& loggerName, bool isDefault) {
 }
 
 LogManager::~LogManager() {
+    spdlog::drop_all();
+    spdlog::shutdown();
     delete inst_;
 }
 
@@ -61,17 +63,5 @@ void LogManager::createDrivers() {
                                               , filePath});
     }
 }
-
-// void LogManager::flushEvery() {
-//     // Flush all *registered* loggers using a worker thread every 3 seconds.
-//     spdlog::flush_every(std::chrono::seconds(3));
-// }
-
-// void LogManager::dropAll() {
-//     for (auto& logger : loggers_) {
-//         logger.second->drop();
-//     }
-//     loggers_.clear();
-// }
 
 } // namespace logrus

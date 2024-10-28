@@ -41,8 +41,6 @@ protected:
     ~LogManager();
     static void createLogger(const std::string& loggerName, bool isDefault = false);
     static void createDrivers();
-    // static void flushEvery();
-    // static void dropAll();
 
     inline static LogManager* inst_ = nullptr;
     inline static LogConfig config_{};

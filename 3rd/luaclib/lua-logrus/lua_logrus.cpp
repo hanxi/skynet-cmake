@@ -1,4 +1,4 @@
-#include <lua_utility.hpp>
+#include <lua.hpp>
 #include "logrus.h"
 
 using namespace logrus;
@@ -86,9 +86,24 @@ static int logrus_fatal(lua_State *L)
     return 0;
 }
 
+static int logrus_hex(lua_State *L)
+{
+    Logrus *p = (Logrus *)lua_touserdata(L, 1);
+    if (nullptr == p)
+    {
+        return luaL_argerror(L, 1, "invalid lua-logrus pointer");
+    }
+
+    size_t sz;
+    const char *buffer = lua_tolstring(L, 2, &sz);
+    auto hex = p->hex(std::string(buffer, sz));
+    p->info(hex);
+    return 0;
+}
+
 static int logrus_create(lua_State *L)
 {
-    std::string logname = luaL_optstring(L, 1, "logrus");
+    std::string logname = luaL_optstring(L, 1, "skynet");
     std::string filename = luaL_optstring(L, 2, "skynet");
 
     Logrus *p = (Logrus *)lua_newuserdatauv(L, sizeof(Logrus), 0);
@@ -103,6 +118,7 @@ static int logrus_create(lua_State *L)
             {"warn", logrus_warn},
             {"error", logrus_error},
             {"fatal", logrus_fatal},
+            {"hex", logrus_hex},
             {NULL, NULL}};
         luaL_newlib(L, l);              //{}
         lua_setfield(L, -2, "__index"); // mt[__index] = {}

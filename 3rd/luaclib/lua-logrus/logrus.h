@@ -13,7 +13,7 @@ public:
     }
     
     ~Logrus() {
-        fatal("~Logrus:" + logname_);
+        warn("~Logrus:" + logname_);
         LogManager::getLogger(logname_).drop();
     }
 
