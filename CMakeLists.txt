@@ -171,8 +171,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
                 ${RP3D_collision_narrowphase_SAT_SRC} ${RP3D_collision_shapes_SRC}
                 ${RP3D_components_SRC} ${RP3D_constraint_SRC}
                 ${RP3D_engine_SRC} ${RP3D_mathematics_SRC} 
-                ${RP3D_memory_SRC} ${RP3D_systems_SRC}
-                ${RP3D_utils_SRC})
+                ${RP3D_memory_SRC} ${RP3D_systems_SRC} ${RP3D_utils_SRC} )
     target_include_directories(rp3d PRIVATE 
                 3rd/core/reactphysics3d/include/
                 3rd/core/reactphysics3d/include/reactphysics3d/body/
@@ -368,8 +367,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
                 ${RP3D_collision_narrowphase_SAT_SRC} ${RP3D_collision_shapes_SRC}
                 ${RP3D_components_SRC} ${RP3D_constraint_SRC} 
                 ${RP3D_engine_SRC} ${RP3D_mathematics_SRC}
-                ${RP3D_memory_SRC} ${RP3D_systems_SRC}
-                ${RP3D_utils_SRC})
+                ${RP3D_memory_SRC} ${RP3D_systems_SRC} ${RP3D_utils_SRC} )
     target_include_directories(rp3d PRIVATE 
                 3rd/core/reactphysics3d/include/
                 3rd/core/reactphysics3d/include/reactphysics3d/body/
@@ -572,10 +570,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
                 ${RP3D_collision_narrowphase_SAT_SRC} ${RP3D_collision_shapes_SRC}
                 ${RP3D_components_SRC} ${RP3D_constraint_SRC}
                 ${RP3D_engine_SRC} ${RP3D_mathematics_SRC}
-                ${RP3D_memory_SRC} ${RP3D_systems_SRC}
-                ${RP3D_utils_SRC})
-    target_include_directories(rp3d PRIVATE 
-                3rd/core/reactphysics3d/include/
+                ${RP3D_memory_SRC} ${RP3D_systems_SRC} ${RP3D_utils_SRC} )
+    target_include_directories(rp3d PRIVATE 3rd/core/reactphysics3d/include/
                 3rd/core/reactphysics3d/include/reactphysics3d/body/
                 3rd/core/reactphysics3d/include/reactphysics3d/collision/
                 3rd/core/reactphysics3d/include/reactphysics3d/collision/broadphase/
