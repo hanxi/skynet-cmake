@@ -149,6 +149,12 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     target_include_directories(math3d PRIVATE 3rd/core/glm/include/)
     target_compile_definitions(math3d PUBLIC -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_QUAT_DATA_XYZW)
 
+    # 生成动态库 rp3d.so
+    aux_source_directory(3rd/luaclib/lua-rp3d LRP3D_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/ RP3D_SRC)
+    add_library(rp3d SHARED ${RP3D_SRC} ${LRP3D_SRC} )
+    target_include_directories(rp3d PRIVATE 3rd/core/reactphysics3d/include/)
+
     # 生成动态库 logrus.so
     aux_source_directory(3rd/luaclib/lua-logrus LOGRUS_SRC)
     add_library(logrus SHARED ${LOGRUS_SRC})
@@ -156,7 +162,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     target_link_libraries(logrus m pthread dl)
 
     set_target_properties(lpeg sproto client md5 bson ltls
-        pb lfs fmt yyjson zset aoi navmesh math3d logrus
+        pb lfs fmt yyjson zset aoi navmesh math3d rp3d logrus
         PROPERTIES
         PREFIX ""
         SUFFIX .so
@@ -304,6 +310,12 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     target_compile_definitions(math3d PUBLIC -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_QUAT_DATA_XYZW)
     target_link_libraries(math3d liblua)
 
+    # 生成动态库 rp3d.so
+    aux_source_directory(3rd/luaclib/lua-rp3d LRP3D_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/ RP3D_SRC)
+    add_library(rp3d SHARED ${RP3D_SRC} ${LRP3D_SRC} )
+    target_include_directories(rp3d PRIVATE 3rd/core/reactphysics3d/include/)
+
     # 生成动态库 logrus.so
     aux_source_directory(3rd/luaclib/lua-logrus LOGRUS_SRC)
     add_library(logrus SHARED ${LOGRUS_SRC})
@@ -311,7 +323,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     target_link_libraries(logrus ws2_32 liblua libposix pthreadVC3)
 
     set_target_properties(lpeg sproto client md5 bson skynetso
-        pb lfs fmt yyjson zset aoi navmesh math3d logrus
+        pb lfs fmt yyjson zset aoi navmesh math3d rp3d logrus
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
@@ -466,10 +478,10 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     target_compile_definitions(math3d PRIVATE -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_QUAT_DATA_XYZW)
 
     # 生成动态库 rp3d.so
-    aux_source_directory(3rd/luaclib/lua-rp3d RP3D_SRC)
-    add_library(rp3d SHARED ${RP3D_SRC} 3rd/core/reactphysics3d/src/ )
+    aux_source_directory(3rd/luaclib/lua-rp3d LRP3D_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/ RP3D_SRC)
+    add_library(rp3d SHARED ${RP3D_SRC} ${LRP3D_SRC} )
     target_include_directories(rp3d PRIVATE 3rd/core/reactphysics3d/include/)
-    # target_compile_definitions(rp3d PRIVATE -DIS_RP3D_DOUBLE_PRECISION_ENABLED)
 
     # 生成动态库 logrus.so
     aux_source_directory(3rd/luaclib/lua-logrus LOGRUS_SRC)
