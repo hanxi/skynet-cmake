@@ -104,6 +104,10 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     target_link_directories(ltls PRIVATE 3rd/core/openssl/lib/linux/)
     target_link_libraries(ltls ssl crypto)
 
+    # 生成动态库 clonefunc.so
+    aux_source_directory(3rd/luaclib/lua-clonefunc CLONEFUNC_SRC)
+    add_library(clonefunc SHARED ${CLONEFUNC_SRC})
+
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
     add_library(pb SHARED ${PB_SRC})
@@ -197,7 +201,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     target_link_libraries(logrus m pthread dl)
 
     set_target_properties(lpeg sproto client md5 bson ltls
-        pb lfs fmt yyjson zset aoi navmesh math3d rp3d logrus
+        clonefunc pb lfs fmt yyjson 
+        zset aoi navmesh math3d 
+        rp3d logrus
         PROPERTIES
         PREFIX ""
         SUFFIX .so
@@ -291,6 +297,11 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     # target_include_directories(ltls PRIVATE 3rd/core/openssl/include/)
     # target_link_directories(ltls PRIVATE 3rd/core/openssl/lib/windows/)
     # target_link_libraries(ltls liblua libssl libcrypto)
+
+    # 生成动态库 clonefunc.so
+    aux_source_directory(3rd/luaclib/lua-clonefunc CLONEFUNC_SRC)
+    add_library(clonefunc SHARED ${CLONEFUNC_SRC})
+    target_link_libraries(clonefunc liblua)
 
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
@@ -394,7 +405,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     target_link_libraries(logrus ws2_32 liblua libposix pthreadVC3)
 
     set_target_properties(lpeg sproto client md5 bson skynetso
-        pb lfs fmt yyjson zset aoi navmesh math3d rp3d logrus
+        clonefunc pb lfs fmt yyjson 
+        zset aoi navmesh math3d 
+        rp3d logrus 
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
@@ -504,6 +517,10 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     target_link_directories(ltls PRIVATE 3rd/core/openssl/lib/mac/)
     target_link_libraries(ltls ssl crypto)
 
+    # 生成动态库 clonefunc.so
+    aux_source_directory(3rd/luaclib/lua-clonefunc CLONEFUNC_SRC)
+    add_library(clonefunc SHARED ${CLONEFUNC_SRC})
+
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
     add_library(pb SHARED ${PB_SRC})
@@ -595,7 +612,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     target_link_libraries(logrus m pthread dl)
 
     set_target_properties(lpeg sproto client md5 bson ltls
-        pb lfs fmt yyjson zset aoi navmesh math3d rp3d logrus
+        clonefunc pb lfs fmt yyjson 
+        zset aoi navmesh math3d 
+        rp3d logrus
         PROPERTIES
         PREFIX ""
         SUFFIX .so

@@ -1,10 +1,10 @@
-local lib = require "rp3d.core"
+local rp3d = require "rp3d.core"
 local math3d_adapter = require "math3d.adapter"
 
 local function shape_interning(shape)
 	local all_shapes = {}
 
-	local world_mt = lib.collision_world_mt
+	local world_mt = rp3d.collision_world_mt
 
 	local heightfield_idx = 1
 
@@ -39,11 +39,11 @@ local function shape_interning(shape)
 	end
 end
 
-function lib.init(logger)
+function rp3d.init(logger)
 	if logger then
-		lib.logger(logger)
+		rp3d.logger(logger)
 	end
-	local world_mt = lib.collision_world_mt
+	local world_mt = rp3d.collision_world_mt
 
 	world_mt.__index = world_mt
 
@@ -53,14 +53,14 @@ function lib.init(logger)
 	world_mt.add_shape 		= math3d_adapter.vector(world_mt.add_shape, 4)
 
 	local shape = {
-		sphere = lib.create_sphere,
-		box = lib.create_box,
-		capsule = lib.create_capsule,
-		heightfield	= math3d_adapter.vector(lib.create_heightfield, 7),
+		sphere = rp3d.create_sphere,
+		box = rp3d.create_box,
+		capsule = rp3d.create_capsule,
+		heightfield	= math3d_adapter.vector(rp3d.create_heightfield, 7),
 	}
 	shape_interning(shape)
 
-	local rayfilter 		= math3d_adapter.vector(lib.rayfilter, 1)
+	local rayfilter 		= math3d_adapter.vector(rp3d.rayfilter, 1)
 	local raycast 			= math3d_adapter.getter(world_mt.raycast, "vv")
 
 	function world_mt.raycast(world, p0, p1, maskbits)
@@ -72,4 +72,4 @@ function lib.init(logger)
 	end
 end
 
-return lib
+return rp3d
