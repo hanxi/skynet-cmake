@@ -1,4 +1,5 @@
 #include <lua.hpp>
+#include <vector>
 #include <reactphysics3d/reactphysics3d.h>
 
 using namespace reactphysics3d;
@@ -185,24 +186,24 @@ get_transform(lua_State *L, int index)
 }
 
 static int
-lcreateCollisionBody(lua_State *L)
+lcreateRigidBody(lua_State *L)
 {
 	class PhysicsWorld *world = getW(L);
 
 	// index 2 , 3 should be float3 and float4
 	Transform trans = get_transform(L, 2);
-	CollisionBody *body = world->createCollisionBody(trans);
+	RigidBody *body = world->createRigidBody(trans);
 	lua_pushlightuserdata(L, (void *)body);
 	return 1;
 }
 
 static int
-ldestroyCollisionBody(lua_State *L)
+ldestroyRigidBody(lua_State *L)
 {
 	class PhysicsWorld *world = getW(L);
-	CollisionBody *body = (CollisionBody *)lua_touserdata(L, 2);
+	RigidBody *body = (RigidBody *)lua_touserdata(L, 2);
 
-	world->destroyCollisionBody(body);
+	world->destroyRigidBody(body);
 	return 0;
 }
 
@@ -210,7 +211,7 @@ static int
 lsetTransform(lua_State *L)
 {
 	//	class PhysicsWorld * world = getW(L);
-	CollisionBody *body = (CollisionBody *)lua_touserdata(L, 2);
+	RigidBody *body = (RigidBody *)lua_touserdata(L, 2);
 
 	Transform trans = get_transform(L, 3);
 
@@ -223,7 +224,7 @@ static int
 lgetAABB(lua_State *L)
 {
 	//	class PhysicsWorld * world = getW(L);
-	CollisionBody *body = (CollisionBody *)lua_touserdata(L, 2);
+	RigidBody *body = (RigidBody *)lua_touserdata(L, 2);
 	float *minv = (float *)lua_touserdata(L, 3);
 	float *maxv = (float *)lua_touserdata(L, 4);
 
@@ -259,7 +260,7 @@ static int
 laddCollisionShape(lua_State *L)
 {
 	//	class PhysicsWorld * world = getW(L);
-	CollisionBody *body = (CollisionBody *)lua_touserdata(L, 2);
+	RigidBody *body = (RigidBody *)lua_touserdata(L, 2);
 	CollisionShape *shape = (CollisionShape *)lua_touserdata(L, 3);
 	Transform trans = get_transform(L, 4);
 
@@ -305,7 +306,7 @@ static int
 ltestOverlap(lua_State *L)
 {
 	class PhysicsWorld *world = getW(L);
-	CollisionBody *body = (CollisionBody *)lua_touserdata(L, 2);
+	RigidBody *body = (RigidBody *)lua_touserdata(L, 2);
 
 	luaOverlapCallback cb;
 	world->testOverlap(body, cb);
@@ -318,7 +319,7 @@ struct luaRaycastCallback : RaycastCallback
 	bool hit;
 	Vector3 worldPoint;
 	Vector3 worldNormal;
-	CollisionBody *body;
+	Body *body;
 
 	luaRaycastCallback() : hit(false), body(NULL) {}
 
@@ -374,7 +375,7 @@ lraycast(lua_State *L)
 	else
 	{
 		luaL_checktype(L, 4, LUA_TLIGHTUSERDATA); // it's a body
-		CollisionBody *body = (CollisionBody *)lua_touserdata(L, 4);
+		RigidBody *body = (RigidBody *)lua_touserdata(L, 4);
 		RaycastInfo raycastInfo;
 		bool isHit = body->raycast(ray, raycastInfo);
 
@@ -455,9 +456,10 @@ lheightFieldShape(lua_State *L)
 	auto height_scaling = (reactphysics3d::decimal)luaL_checknumber(L, 6);
 	auto scaling = (reactphysics3d::Vector3 *)lua_touserdata(L, 7);
 
-	const uint32_t upaxis_Y = 1;
-	HeightFieldShape *hfs = P->pc->createHeightFieldShape(grid_width, grid_height, min_height, max_height, heightfield_data,
-														  reactphysics3d::HeightFieldShape::HeightDataType::HEIGHT_FLOAT_TYPE, upaxis_Y, height_scaling, *scaling);
+	std::vector<Message> messages;
+
+	HeightField *heightField = P->pc->createHeightField(grid_width, grid_height, heightfield_data, reactphysics3d::HeightField::HeightDataType::HEIGHT_FLOAT_TYPE, messages);
+	HeightFieldShape *hfs = P->pc->createHeightFieldShape(heightField, *scaling);
 	lua_pushlightuserdata(L, hfs);
 
 	return 1;
@@ -660,10 +662,10 @@ extern "C"
 		lua_setfield(L, LUA_REGISTRYINDEX, "RP3DCOMMON");
 
 		int pc_index = lua_gettop(L);
-
+	
 		luaL_Reg collision_world[] = {
-			{"body_create", lcreateCollisionBody},
-			{"body_destroy", ldestroyCollisionBody},
+			{"body_create", lcreateRigidBody},
+			{"body_destroy", ldestroyRigidBody},
 			{"set_transform", lsetTransform},
 			{"get_aabb", lgetAABB},
 			{"add_shape", laddCollisionShape},

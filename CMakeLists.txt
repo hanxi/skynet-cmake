@@ -104,9 +104,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     target_link_directories(ltls PRIVATE 3rd/core/openssl/lib/linux/)
     target_link_libraries(ltls ssl crypto)
 
-    # 生成动态库 clonefunc.so
-    aux_source_directory(3rd/luaclib/lua-clonefunc CLONEFUNC_SRC)
-    add_library(clonefunc SHARED ${CLONEFUNC_SRC})
+    # # 生成动态库 clonefunc.so
+    # aux_source_directory(3rd/luaclib/lua-clonefunc CLONEFUNC_SRC)
+    # add_library(clonefunc SHARED ${CLONEFUNC_SRC})
 
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
@@ -169,15 +169,16 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     aux_source_directory(3rd/core/reactphysics3d/src/memory/ RP3D_memory_SRC)
     aux_source_directory(3rd/core/reactphysics3d/src/systems/ RP3D_systems_SRC)
     aux_source_directory(3rd/core/reactphysics3d/src/utils/ RP3D_utils_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/utils/quickhull/ RP3D_utils_quickhull_SRC)
     add_library(rp3d SHARED ${RP3D_SRC} ${RP3D_body_SRC} 
                 ${RP3D_collision_SRC}  ${RP3D_collision_broadphase_SRC}
                 ${RP3D_collision_narrowphase_SRC} ${RP3D_collision_narrowphase_GJK_SRC}
                 ${RP3D_collision_narrowphase_SAT_SRC} ${RP3D_collision_shapes_SRC}
                 ${RP3D_components_SRC} ${RP3D_constraint_SRC}
-                ${RP3D_engine_SRC} ${RP3D_mathematics_SRC} 
-                ${RP3D_memory_SRC} ${RP3D_systems_SRC} ${RP3D_utils_SRC} )
-    target_include_directories(rp3d PRIVATE 
-                3rd/core/reactphysics3d/include/
+                ${RP3D_engine_SRC} ${RP3D_mathematics_SRC}
+                ${RP3D_memory_SRC} ${RP3D_systems_SRC}
+                ${RP3D_utils_SRC} ${RP3D_utils_quickhull_SRC} )
+    target_include_directories(rp3d PRIVATE 3rd/core/reactphysics3d/include/
                 3rd/core/reactphysics3d/include/reactphysics3d/body/
                 3rd/core/reactphysics3d/include/reactphysics3d/collision/
                 3rd/core/reactphysics3d/include/reactphysics3d/collision/broadphase/
@@ -192,7 +193,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
                 3rd/core/reactphysics3d/include/reactphysics3d/mathematics/
                 3rd/core/reactphysics3d/include/reactphysics3d/memory/
                 3rd/core/reactphysics3d/include/reactphysics3d/systems/
-                3rd/core/reactphysics3d/include/reactphysics3d/utils/ )
+                3rd/core/reactphysics3d/include/reactphysics3d/utils/
+                3rd/core/reactphysics3d/include/reactphysics3d/utils/quickhull/ )
 
     # 生成动态库 logrus.so
     aux_source_directory(3rd/luaclib/lua-logrus LOGRUS_SRC)
@@ -201,7 +203,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     target_link_libraries(logrus m pthread dl)
 
     set_target_properties(lpeg sproto client md5 bson ltls
-        clonefunc pb lfs fmt yyjson 
+        pb lfs fmt yyjson 
         zset aoi navmesh math3d 
         rp3d logrus
         PROPERTIES
@@ -298,10 +300,10 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     # target_link_directories(ltls PRIVATE 3rd/core/openssl/lib/windows/)
     # target_link_libraries(ltls liblua libssl libcrypto)
 
-    # 生成动态库 clonefunc.so
-    aux_source_directory(3rd/luaclib/lua-clonefunc CLONEFUNC_SRC)
-    add_library(clonefunc SHARED ${CLONEFUNC_SRC})
-    target_link_libraries(clonefunc liblua)
+    # # 生成动态库 clonefunc.so
+    # aux_source_directory(3rd/luaclib/lua-clonefunc CLONEFUNC_SRC)
+    # add_library(clonefunc SHARED ${CLONEFUNC_SRC})
+    # target_link_libraries(clonefunc liblua)
 
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
@@ -372,15 +374,16 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     aux_source_directory(3rd/core/reactphysics3d/src/memory/ RP3D_memory_SRC)
     aux_source_directory(3rd/core/reactphysics3d/src/systems/ RP3D_systems_SRC)
     aux_source_directory(3rd/core/reactphysics3d/src/utils/ RP3D_utils_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/utils/quickhull/ RP3D_utils_quickhull_SRC)
     add_library(rp3d SHARED ${RP3D_SRC} ${RP3D_body_SRC} 
                 ${RP3D_collision_SRC}  ${RP3D_collision_broadphase_SRC}
                 ${RP3D_collision_narrowphase_SRC} ${RP3D_collision_narrowphase_GJK_SRC}
                 ${RP3D_collision_narrowphase_SAT_SRC} ${RP3D_collision_shapes_SRC}
-                ${RP3D_components_SRC} ${RP3D_constraint_SRC} 
+                ${RP3D_components_SRC} ${RP3D_constraint_SRC}
                 ${RP3D_engine_SRC} ${RP3D_mathematics_SRC}
-                ${RP3D_memory_SRC} ${RP3D_systems_SRC} ${RP3D_utils_SRC} )
-    target_include_directories(rp3d PRIVATE 
-                3rd/core/reactphysics3d/include/
+                ${RP3D_memory_SRC} ${RP3D_systems_SRC}
+                ${RP3D_utils_SRC} ${RP3D_utils_quickhull_SRC} )
+    target_include_directories(rp3d PRIVATE 3rd/core/reactphysics3d/include/
                 3rd/core/reactphysics3d/include/reactphysics3d/body/
                 3rd/core/reactphysics3d/include/reactphysics3d/collision/
                 3rd/core/reactphysics3d/include/reactphysics3d/collision/broadphase/
@@ -395,7 +398,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
                 3rd/core/reactphysics3d/include/reactphysics3d/mathematics/
                 3rd/core/reactphysics3d/include/reactphysics3d/memory/
                 3rd/core/reactphysics3d/include/reactphysics3d/systems/
-                3rd/core/reactphysics3d/include/reactphysics3d/utils/ )
+                3rd/core/reactphysics3d/include/reactphysics3d/utils/
+                3rd/core/reactphysics3d/include/reactphysics3d/utils/quickhull/ )
     target_link_libraries(rp3d liblua)
 
     # 生成动态库 logrus.so
@@ -405,7 +409,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     target_link_libraries(logrus ws2_32 liblua libposix pthreadVC3)
 
     set_target_properties(lpeg sproto client md5 bson skynetso
-        clonefunc pb lfs fmt yyjson 
+        pb lfs fmt yyjson 
         zset aoi navmesh math3d 
         rp3d logrus 
         PROPERTIES
@@ -517,9 +521,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     target_link_directories(ltls PRIVATE 3rd/core/openssl/lib/mac/)
     target_link_libraries(ltls ssl crypto)
 
-    # 生成动态库 clonefunc.so
-    aux_source_directory(3rd/luaclib/lua-clonefunc CLONEFUNC_SRC)
-    add_library(clonefunc SHARED ${CLONEFUNC_SRC})
+    # # 生成动态库 clonefunc.so
+    # aux_source_directory(3rd/luaclib/lua-clonefunc CLONEFUNC_SRC)
+    # add_library(clonefunc SHARED ${CLONEFUNC_SRC})
 
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
@@ -581,13 +585,15 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     aux_source_directory(3rd/core/reactphysics3d/src/memory/ RP3D_memory_SRC)
     aux_source_directory(3rd/core/reactphysics3d/src/systems/ RP3D_systems_SRC)
     aux_source_directory(3rd/core/reactphysics3d/src/utils/ RP3D_utils_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/utils/quickhull/ RP3D_utils_quickhull_SRC)
     add_library(rp3d SHARED ${RP3D_SRC} ${RP3D_body_SRC} 
                 ${RP3D_collision_SRC}  ${RP3D_collision_broadphase_SRC}
                 ${RP3D_collision_narrowphase_SRC} ${RP3D_collision_narrowphase_GJK_SRC}
                 ${RP3D_collision_narrowphase_SAT_SRC} ${RP3D_collision_shapes_SRC}
                 ${RP3D_components_SRC} ${RP3D_constraint_SRC}
                 ${RP3D_engine_SRC} ${RP3D_mathematics_SRC}
-                ${RP3D_memory_SRC} ${RP3D_systems_SRC} ${RP3D_utils_SRC} )
+                ${RP3D_memory_SRC} ${RP3D_systems_SRC}
+                ${RP3D_utils_SRC} ${RP3D_utils_quickhull_SRC} )
     target_include_directories(rp3d PRIVATE 3rd/core/reactphysics3d/include/
                 3rd/core/reactphysics3d/include/reactphysics3d/body/
                 3rd/core/reactphysics3d/include/reactphysics3d/collision/
@@ -603,7 +609,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
                 3rd/core/reactphysics3d/include/reactphysics3d/mathematics/
                 3rd/core/reactphysics3d/include/reactphysics3d/memory/
                 3rd/core/reactphysics3d/include/reactphysics3d/systems/
-                3rd/core/reactphysics3d/include/reactphysics3d/utils/ )
+                3rd/core/reactphysics3d/include/reactphysics3d/utils/
+                3rd/core/reactphysics3d/include/reactphysics3d/utils/quickhull/ )
 
     # 生成动态库 logrus.so
     aux_source_directory(3rd/luaclib/lua-logrus LOGRUS_SRC)
@@ -612,7 +619,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     target_link_libraries(logrus m pthread dl)
 
     set_target_properties(lpeg sproto client md5 bson ltls
-        clonefunc pb lfs fmt yyjson 
+        pb lfs fmt yyjson 
         zset aoi navmesh math3d 
         rp3d logrus
         PROPERTIES
