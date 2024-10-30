@@ -70,7 +70,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         skynet/lualib-src/lua-debugchannel.c
         skynet/lualib-src/lua-datasheet.c
         skynet/lualib-src/lua-sharetable.c
-        )
+        3rd/luaclib/lua-clonefunc/clonefunc.c )
     add_library(skynetso SHARED ${LUA_CLIB_SKYNET_SRC})
     target_include_directories(skynetso PRIVATE skynet/skynet-src skynet/lualib-src)
     set_target_properties(skynetso PROPERTIES OUTPUT_NAME skynet)
@@ -103,10 +103,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     target_include_directories(ltls PRIVATE 3rd/core/openssl/include/)
     target_link_directories(ltls PRIVATE 3rd/core/openssl/lib/linux/)
     target_link_libraries(ltls ssl crypto)
-
-    # # 生成动态库 clonefunc.so
-    # aux_source_directory(3rd/luaclib/lua-clonefunc CLONEFUNC_SRC)
-    # add_library(clonefunc SHARED ${CLONEFUNC_SRC})
 
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
@@ -203,7 +199,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     target_link_libraries(logrus m pthread dl)
 
     set_target_properties(lpeg sproto client md5 bson ltls
-        pb lfs fmt yyjson 
+        pb lfs fmt yyjson  
         zset aoi navmesh math3d 
         rp3d logrus
         PROPERTIES
@@ -262,7 +258,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
         skynet/lualib-src/lua-debugchannel.c
         skynet/lualib-src/lua-datasheet.c
         skynet/lualib-src/lua-sharetable.c
-        )
+        3rd/luaclib/lua-clonefunc/clonefunc.c )
     message(STATUS "The value of LIB_SKYNET_SRC is: ${LIB_SKYNET_SRC}")
     add_library(skynetso SHARED ${LUA_CLIB_SKYNET_SRC})
     target_compile_definitions(skynetso PUBLIC LUA_LIB)
@@ -299,11 +295,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     # target_include_directories(ltls PRIVATE 3rd/core/openssl/include/)
     # target_link_directories(ltls PRIVATE 3rd/core/openssl/lib/windows/)
     # target_link_libraries(ltls liblua libssl libcrypto)
-
-    # # 生成动态库 clonefunc.so
-    # aux_source_directory(3rd/luaclib/lua-clonefunc CLONEFUNC_SRC)
-    # add_library(clonefunc SHARED ${CLONEFUNC_SRC})
-    # target_link_libraries(clonefunc liblua)
 
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
@@ -409,7 +400,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     target_link_libraries(logrus ws2_32 liblua libposix pthreadVC3)
 
     set_target_properties(lpeg sproto client md5 bson skynetso
-        pb lfs fmt yyjson 
+        pb lfs fmt yyjson  
         zset aoi navmesh math3d 
         rp3d logrus 
         PROPERTIES
@@ -487,7 +478,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
         skynet/lualib-src/lua-stm.c
         skynet/lualib-src/lua-debugchannel.c
         skynet/lualib-src/lua-datasheet.c
-        skynet/lualib-src/lua-sharetable.c )
+        skynet/lualib-src/lua-sharetable.c
+        3rd/luaclib/lua-clonefunc/clonefunc.c )
     add_library(skynetso SHARED ${LUA_CLIB_SKYNET_SRC})
     target_include_directories(skynetso PRIVATE skynet/skynet-src skynet/lualib-src)
     set_target_properties(skynetso PROPERTIES OUTPUT_NAME skynet)
@@ -520,10 +512,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     target_include_directories(ltls PRIVATE 3rd/core/openssl/include/)
     target_link_directories(ltls PRIVATE 3rd/core/openssl/lib/mac/)
     target_link_libraries(ltls ssl crypto)
-
-    # # 生成动态库 clonefunc.so
-    # aux_source_directory(3rd/luaclib/lua-clonefunc CLONEFUNC_SRC)
-    # add_library(clonefunc SHARED ${CLONEFUNC_SRC})
 
     # 生成动态库 pb.so
     aux_source_directory(3rd/luaclib/lua-protobuf PB_SRC)
@@ -619,7 +607,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     target_link_libraries(logrus m pthread dl)
 
     set_target_properties(lpeg sproto client md5 bson ltls
-        pb lfs fmt yyjson 
+        pb lfs fmt yyjson  
         zset aoi navmesh math3d 
         rp3d logrus
         PROPERTIES

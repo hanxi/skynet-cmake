@@ -44,7 +44,8 @@ lproto(lua_State *L) {
 	return 2;
 }
 
-LUALIB_API int luaopen_clonefunc(lua_State *L) {
+LUAMOD_API int 
+luaopen_skynet_clonefunc(lua_State *L) {
 	luaL_checkversion(L);
 	luaL_Reg l[] = {
 		{ "clone", lclone },

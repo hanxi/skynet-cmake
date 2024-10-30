@@ -1,4 +1,4 @@
-local clonefunc = require "clonefunc"
+local clonefunc = require "skynet.clonefunc"
 
 local hotfix = {}
 
