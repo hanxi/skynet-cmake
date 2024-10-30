@@ -1,308 +1,420 @@
-local clonefunc = require "skynet.clonefunc"
+-- 一些有用的参考例子
+-- https://github.com/cloudwu/luareload
+-- https://github.com/jinq0123/hotfix
+-- https://github.com/sealindx/lua-hotfix
 
-local hotfix = {}
+local reloader = {}
 
-local function same_proto(f1, f2)
-    local uv = {}
+local fixfname_tb
+local locals
+
+local collect_uv
+
+local format = string.format
+
+local function printE(...)
+    print("[fixhot] ", ...)
+end
+
+local weak = { __mode = "kv" }
+local catch_package = setmetatable({}, weak)
+
+
+local function tsplit(str, reps)
+    local result = {}
+    string.gsub(str, '[^' .. reps .. ']+', function(w)
+        table.insert(result, w)
+    end)
+    return result
+end
+
+local dump_env = {}
+for k, v in pairs(_ENV) do
+    dump_env[k] = v
+end
+
+local function prev_loader_module()
+    for k, v in pairs(package.loaded) do
+        catch_package[v] = k
+    end
+end
+
+
+local function findloader(name, env, extra)
+    local f = io.open(name, "r")
+    assert(f, name .. " file is not exit")
+    local str = f:read("*a")
+    f:close()
+    if extra then
+        str = extra .. str
+    end
+    return str, load(str, name, "bt", env)
+end
+
+local function getupvalues(f, uvf, uvt, unique, fname)
     local i = 1
     while true do
-        local name = debug.getupvalue(f1, i)
+        local name, value = debug.getupvalue(f, i)
         if name == nil then
-            break
-        end
-        if name ~= "_ENV" then -- ignore _ENV
-            uv[name] = true
-        end
-        i = i + 1
-    end
-    i = 1
-    while true do
-        local name = debug.getupvalue(f2, i)
-        if name == nil then
-            -- new version can has less upvalue (uv is not empty)
-            return true
-        end
-        if name ~= "_ENV" and uv[name] == nil then
-            return false -- f2 add a new upvalue
-        end
-        uv[name] = nil
-        i = i + 1
-    end
-end
-
----Recursive detection function m1's proto and function m2's proto have the same count
----@return table, table? @ function's proto <-> new function
-function hotfix.diff(m1, m2)
-    local clone = clonefunc.clone
-    local proto = clonefunc.proto
-
-    local diff = {}
-    local err = nil
-
-    local function funcinfo(f)
-        local info = debug.getinfo(f, "S")
-        return string.format("%s(%d-%d)", info.short_src, info.linedefined, info.lastlinedefined)
-    end
-
-    local function diff_(a, b)
-        local p1, n1 = proto(a)
-        local p2, n2 = proto(b)
-        if p1 == nil or p2 == nil or n1 ~= n2 then
-            err = err or {}
-            table.insert(err, funcinfo(a) .. "/" .. funcinfo(b))
             return
         end
-        if not same_proto(a, b) then
-            err = err or {}
-            table.insert(err, funcinfo(a) .. "/" .. funcinfo(b))
-        end
-        diff[p1] = b
-        for i = 1, n1 do
-            diff_(clone(a, i), clone(b, i))
-        end
-    end
 
-    diff_(m1, m2)
-    return diff, err
-end
+        if name ~= "_ENV" and not dump_env[name] then
+            local t = type(value)
+            if not unique[name] then
+                unique[name] = true
 
-local searchers = {}
-
-function hotfix.addsearcher(fn)
-    searchers[#searchers + 1] = fn
-end
-
----@return function, string?
-local function findloader(name)
-    local msg = {}
-    for _, loader in ipairs(searchers) do
-        local f, extra = loader(name)
-        local t = type(f)
-        if t == "function" then
-            return f, extra
-        elseif t == "string" then
-            table.insert(msg, f)
-        end
-    end
-    error(string.format("module '%s' not found:%s", name, table.concat(msg)))
-end
-
-local loaders = {}
-local origin = {}
-local old_functions = setmetatable({}, { __mode = "k" })
-
-function hotfix.require(name)
-    assert(type(name) == "string")
-    local _LOADED = debug.getregistry()._LOADED
-    if _LOADED[name] then
-        return _LOADED[name]
-    end
-    local loader, arg = findloader(name)
-    local ret = loader(name, arg) or true
-    loaders[name] = loader
-    origin[name] = loader
-    _LOADED[name] = ret
-
-    return ret
-end
-
-function hotfix.register(name, loader, ret)
-    assert(type(name) == "string")
-    local _LOADED = debug.getregistry()._LOADED
-    if _LOADED[name] then
-        return _LOADED[name]
-    end
-    loaders[name] = loader
-    origin[name] = loader
-    _LOADED[name] = ret
-    return ret
-end
-
-local function hotfix_(root, proto_map, short_source)
-    local proto = clonefunc.proto
-
-    local getupvalue = debug.getupvalue
-    local upvalueid = debug.upvalueid
-    local upvaluejoin = debug.upvaluejoin
-    local setupvalue = debug.setupvalue
-
-    local exclude = {}
-
-    local function collect_uv(f, uv, source)
-        local i = 1
-        while true do
-            local name, value = getupvalue(f, i)
-            if name == nil then
-                break
-            end
-            local id = upvalueid(f, i)
-
-            if uv[name] then
-                assert(uv[name].id == id, string.format("ambiguity local value %s", name))
+                if t == "function" and not uvf[name] then
+                    uvf[name] = { func = { { f, i } }, value = value }
+                    getupvalues(value, uvf, uvt, unique, name)
+                elseif t == "table" and not uvt[name] then
+                    uvt[name] = { func = { { f, i } }, value = value }
+                    if not catch_package[value] then
+                        collect_uv(name, value, uvf, uvt, false)
+                    end
+                else
+                    -- value is basic type, and save it in uvt
+                    -- like local a = 12
+                    if not uvt[name] then
+                        uvt[name] = { func = { { f, i } } }
+                    end
+                end
             else
-                uv[name] = { func = f, index = i, id = id, value = value }
-                if type(value) == "function" and proto_map[proto(value)] then
-                    collect_uv(value, uv, source)
-                elseif type(value) == "table" and name ~= "_ENV" then
-                    for k, v in next, value do
-                        if type(v) == "function" then
-                            if debug.getinfo(v, "S").short_src ~= source then
-                                --print("break reason source does not match", name, _, v, source, debug.getinfo(v, "S").short_src)
-                                ---skip functions not in source
-                                break
-                            end
-                            collect_uv(v, uv, source)
-                        elseif k ~= "__index" then
-                            --print("break reason all value must be function type", name, value, v)
-                            ---all value must be function type
-                            break
+                if t == "function" then
+                    -- 当一个模块中出现两个相同函数名时，看看是否存在二义性，是否唯一
+                    if uvf[name].value and reloader.ambiguity then
+                        if uvf[name].value ~= value then
+                            error(format("%s ambiguity reference(%s) now value: %s, old value: %s",
+                                fname or "", name, value, uvf[name].value))
                         end
                     end
+
+                    local func = uvf[name].func
+                    func[#func + 1] = { f, i }
+                elseif t == "table" then
+                    local func = uvt[name].func
+                    if func then
+                        func[#func + 1] = { f, i }
+                    end
                 end
             end
-            i = i + 1
+        end
+
+        i = i + 1
+    end
+end
+
+collect_uv = function(tname, tb, uvf, uvt, ismodule)
+    assert(tname)
+
+    local unique = {}
+
+    if ismodule and not uvt[tname] then
+        uvt[tname] = { value = tb }
+    end
+
+    for k, v in pairs(tb) do
+        if type(v) == "function" then
+            local key = format("%s.%s", tname, k)
+            uvf[key] = { func = {}, value = v }
+            getupvalues(v, uvf, uvt, unique, k)
         end
     end
 
-    ---collect old verion function's upvalue
-    local function collect_all_uv(funcs, source)
-        local global = {}
-        for _, v in pairs(funcs) do
-            if type(v) == "function" then
-                collect_uv(v, global, source)
-            end
-        end
-        if not global["_ENV"] then
-            global["_ENV"] = { func = collect_uv, index = 1 }
-        end
-        return global
+    -- add metatable support
+    local mt = getmetatable(tb) or {}
+    local mtbase = mt.__index
+    if mtbase and type(mtbase) == "table" then
+        collect_uv(tname, mtbase, uvf, uvt, ismodule)
     end
+end
 
-    local function update_func(global, f)
-        if exclude[f] then
+local function push_new_func_upvalues(of, ot, f)
+    local i = 1
+    while true do
+        local name, value = debug.getupvalue(f, i)
+        if name == nil then
             return
         end
-        exclude[f] = true
-        f = old_functions[f] or f -- find origin version
 
-        local oldf = nil
+        if not value then
+            local detail = of[name] or ot[name]
+            if detail then
+                local func = detail.func
+                if func then
+                    debug.upvaluejoin(f, i, func[1][1], func[1][2])
+                elseif ot[name].value then
+                    debug.setupvalue(f, i, detail.value)
+                end
+            else
+                error(format("Its value(%s) could not be found in the old module", name))
+            end
+        else
+            if type(value) == "function" then
+                push_new_func_upvalues(of, ot, value)
+            end
+        end
+        i = i + 1
+    end
+end
+
+local function patch_local_func(of, ot, fname, f)
+    local function tmpf()
+        local up = f
+    end
+
+    local detail = of[fname] or ot[fname]
+    if detail then
+        local func = detail.func
+        if func then
+            for k = 1, #func do
+                debug.upvaluejoin(func[k][1], func[k][2], tmpf, 1)
+            end
+        end
+    end
+end
+
+local function is_table_func(fname)
+    if string.find(fname, "%.") then
+        return true
+    end
+    return false
+end
+
+local function patch_func(t, k, f)
+    local of = t.__of
+    local ot = t.__ot
+    local check = t.__check
+
+    assert(type(f) == "function", format("hotfix %s failed, it's type is not function", k))
+
+    if of[k] then
+        push_new_func_upvalues(of, ot, f)
+
+        if not check then
+            patch_local_func(of, ot, k, f)
+        end
+
+        if is_table_func(k) then
+            local keys = tsplit(k, ".")
+            local tb_func = ot[keys[1]]
+            local vt = tb_func.value
+
+            assert(vt, format("1. hotfix failed, invalid function %s", k))
+
+            if not check then
+                vt[keys[2]] = f
+            end
+        end
+    else
+        if not is_table_func(k) then -- 方法名不能是一个表里面的方法
+            local vt = ot.__module.value
+
+            if vt[k] then
+                push_new_func_upvalues(of, ot, f)
+
+                if not check then
+                    patch_local_func(of, ot, k, f)
+                    vt[k] = f
+                end
+            else
+                error("2, hotfix failed, invalid function " .. k)
+            end
+        else
+            error("3. hotfix failed, invalid function " .. k)
+        end
+    end
+end
+
+local function load_new_module(module, uvf, uvt, check)
+    local _env = _ENV
+
+    local function global_write(t, k, v)
+        local oldv = _env[k]
+        if oldv then
+            if type(v) == "function" then
+                push_new_func_upvalues(uvf, uvt, v)
+            end
+
+            if not check then
+                _env[k] = v
+            end
+        else
+            error("forbid added a new global function " .. k)
+        end
+    end
+
+    local _u = { __of = uvf, __ot = uvt, __check = check }
+    local _U = setmetatable(_u, { __newindex = patch_func })
+    local function hotfix_func(fname, func)
+        patch_func(_U, fname, func)
+    end
+
+    local global_mt = { __index = _ENV, __newindex = global_write }
+    local env = setmetatable({ FIX = _U, fix = hotfix_func }, global_mt) -- 读写全局变量，直接作用在旧的模块中，提高效率
+    local _, func, err = findloader(module, env)
+    if func then
+        local ok, perr = pcall(func)
+
+        _U.__of = nil
+        _U.__ot = nil
+        setmetatable(_U, nil)
+        global_mt.__newindex = _ENV
+
+        assert(ok, format("error: pcall new module(%s) failed: %s", module, perr))
+    else
+        error(format("load file %s error: %s", module, err))
+    end
+end
+
+local function cache_func_name(t, fname, f)
+    assert(type(f) == "function")
+
+    local of = t.__of
+    local ot = t.__ot
+
+    local function collect_locals(func)
+        if not func then
+            return
+        end
+
         local i = 1
         while true do
-            local name, value = getupvalue(f, i)
+            local name, value = debug.getupvalue(func, i)
             if name == nil then
-                oldf = f
-                break
+                return
             end
-            if type(value) == "function" then
-                update_func(global, value)
-            else
-                local old_uv = assert(global[name])
-                ---let new function refer old function's upvalue
-                upvaluejoin(f, i, old_uv.func, old_uv.index)
-            end
-            i = i + 1
-        end
-        old_functions[f] = old_functions[f] or oldf -- don't clear old_functions
 
-        i = 1
-        while true do
-            local name, value = getupvalue(f, i)
-            if name == nil then
-                break
-            end
-            if name == "_ENV" then
-                if value == nil then
-                    setupvalue(f, i, _ENV)
+            if name ~= "_ENV" and not dump_env[name] then
+                if not locals[name] then
+                    locals[name] = true
+                    locals[#locals + 1] = format("local %s\n", name)
                 end
-                break
+            end
+
+            if type(value) == "function" then
+                if not locals[name] then
+                    locals[name] = true
+                    collect_locals(value)
+                end
             end
             i = i + 1
         end
     end
 
-    local upvalues = collect_all_uv(root, short_source)
-    -- local env = upvalues['_ENV']
-    -- upvalues['_ENV'] = nil
-    -- print_r(upvalues)
-    -- upvalues['_ENV'] = env
+    if of[fname] and of[fname].value then
+        local func = of[fname].value
+        collect_locals(func)
+    end
 
-    local function update_funcs(oldfuncs, newproto, res)
-        for name, v in next, oldfuncs do
-            if type(v) == "function" then
-                local newf = newproto[proto(v)]
-                if newf then
-                    --print("2. hotfix", name)
-                    update_func(upvalues, newf)
-                    res[{ uptable = oldfuncs, key = name }] = newf
-                else
-                    --print("hotfix skip: hotfix not found proto", name, v)
+    if not ot.__module then
+        return
+    end
+
+    local mf = ot.__module.value[fname]
+    if mf and type(mf) == "function" then
+        collect_locals(mf)
+    end
+end
+
+local function wrap_locals(module, content)
+    local file = io.open(module, "r+")
+    local gsub = string.gsub
+    local remove = table.remove
+    local insert = table.insert
+
+    if not file then
+        error("can not read the file: " .. module)
+    end
+
+    if #locals > 0 then
+        local lose = {}
+
+        for i = 1, #locals do
+            local v = locals[i]
+            gsub(content, v, function(has)
+                if has then
+                    insert(lose, locals[i])
+                end
+            end)
+        end
+
+        for i = 1, #lose do
+            local v = lose[i]
+            for j = 1, #locals do
+                if locals[j] == v then
+                    remove(locals, j)
                     break
                 end
-            elseif type(v) == "table" and v.value and v.func then
-                local tp = type(v.value)
-                if tp == "function" then
-                    local newf = newproto[proto(v.value)]
-                    if newf then
-                        --print("1. hotfix", name)
-                        update_func(upvalues, newf)
-                        res[v] = newf
-                    else
-                        --print("hotfix skip: hotfix not found proto", name, v)
-                    end
-                elseif tp == "table" and name ~= "_ENV" then
-                    --print("3. step in:", name)
-                    update_funcs(v.value, newproto, res)
-                end
             end
         end
+
+        local extra = table.concat(locals, "")
+        content = extra .. content
     end
 
-    local transactions = {}
+    if #locals > 0 then
+        io.output(file)
+        io.write(content)
+    end
+    io.close(file)
+end
 
-    update_funcs(upvalues, proto_map, transactions)
-    update_funcs(root, proto_map, transactions)
+local function _init(module, uvf, uvt)
+    fixfname_tb = {}
+    locals = {}
 
-    for k, v in pairs(transactions) do
-        if k.uptable then
-            ---set new function to origin parent
-            k.uptable[k.key] = v
-        else
-            ---set new function's function-type upvalue
-            setupvalue(k.func, k.index, v)
+    local _u = { __of = uvf, __ot = uvt }
+    local _U = setmetatable(_u, { __newindex = cache_func_name })
+    local function hotfix_func(fname, func)
+        cache_func_name(_U, fname, func)
+    end
+
+    local c, f, err = findloader(module, { FIX = _U, fix = hotfix_func })
+    assert(f, err)
+
+    local ok, err = pcall(f)
+    assert(ok, err)
+
+    wrap_locals(module, c)
+    locals = nil
+end
+
+local function reload_module(list, check)
+    for _, info in ipairs(list) do
+        local oldmodule = info[1]
+        local newpath = info[2]
+        local uvf, uvt = {}, {}
+
+        if oldmodule and newpath then
+            assert(type(oldmodule) == "table")
+
+            collect_uv("__module", oldmodule, uvf, uvt, true)
+            if check then
+                _init(newpath, uvf, uvt)
+            end
+
+            load_new_module(newpath, uvf, uvt, check)
         end
     end
 end
 
----only hotfix functions defined in current source file
-function hotfix.update(name, updatename)
-    assert(type(name) == "string")
-    updatename = updatename or name
-    local _LOADED = debug.getregistry()._LOADED
-    if _LOADED[name] == nil then
-        return true, hotfix.require(name)
-    end
-    if loaders[name] == nil then
-        return false, "Can't find last version : " .. name
-    end
+function reloader.module(list)
+    prev_loader_module()
 
-    local loader = findloader(updatename)
-    local diff, err = hotfix.diff(loaders[name], loader)
-    if err then
-        -- failed
-        if loaders[name] == origin[name] then
-            -- first time reload
-            return false, table.concat(err, "\n")
+    local ok, err = pcall(reload_module, list, true)
+    if ok then
+        ok, err = pcall(reload_module, list)
+        if not ok then
+            printE("reloader.module failed:", err)
         end
-        local _, err = hotfix.diff(origin[name], loader)
-        if err then
-            -- add upvalue not exist in origin version
-            return false, table.concat(err, "\n")
-        end
+    else
+        printE("reloader.module error:", err)
     end
-
-    hotfix_(_LOADED[name], diff, name)
-    loaders[name] = loader
-    return true, _LOADED[name]
+    -- collectgarbage("collect")
 end
 
-return hotfix
+-- check function is unique
+reloader.ambiguity = true
+
+return reloader

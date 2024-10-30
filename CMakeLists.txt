@@ -69,8 +69,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         skynet/lualib-src/lua-stm.c
         skynet/lualib-src/lua-debugchannel.c
         skynet/lualib-src/lua-datasheet.c
-        skynet/lualib-src/lua-sharetable.c
-        3rd/luaclib/lua-clonefunc/clonefunc.c )
+        skynet/lualib-src/lua-sharetable.c )
     add_library(skynetso SHARED ${LUA_CLIB_SKYNET_SRC})
     target_include_directories(skynetso PRIVATE skynet/skynet-src skynet/lualib-src)
     set_target_properties(skynetso PROPERTIES OUTPUT_NAME skynet)
@@ -257,8 +256,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
         skynet/lualib-src/lua-stm.c
         skynet/lualib-src/lua-debugchannel.c
         skynet/lualib-src/lua-datasheet.c
-        skynet/lualib-src/lua-sharetable.c
-        3rd/luaclib/lua-clonefunc/clonefunc.c )
+        skynet/lualib-src/lua-sharetable.c )
     message(STATUS "The value of LIB_SKYNET_SRC is: ${LIB_SKYNET_SRC}")
     add_library(skynetso SHARED ${LUA_CLIB_SKYNET_SRC})
     target_compile_definitions(skynetso PUBLIC LUA_LIB)
@@ -478,8 +476,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
         skynet/lualib-src/lua-stm.c
         skynet/lualib-src/lua-debugchannel.c
         skynet/lualib-src/lua-datasheet.c
-        skynet/lualib-src/lua-sharetable.c
-        3rd/luaclib/lua-clonefunc/clonefunc.c )
+        skynet/lualib-src/lua-sharetable.c )
     add_library(skynetso SHARED ${LUA_CLIB_SKYNET_SRC})
     target_include_directories(skynetso PRIVATE skynet/skynet-src skynet/lualib-src)
     set_target_properties(skynetso PROPERTIES OUTPUT_NAME skynet)
