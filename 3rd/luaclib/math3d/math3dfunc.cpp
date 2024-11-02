@@ -701,7 +701,7 @@ perspectiveLH(float fovy, float aspect, float near, float far, struct projection
 		std::swap(near, far);
 	}
 
-	assert(abs(aspect - glm::epsilon<float>()) > 0);
+	assert(std::abs(aspect - glm::epsilon<float>()) > 0);
 	const float tanHalfFovy = tan(fovy / 2);
 
 	glm::mat4 r(0);
