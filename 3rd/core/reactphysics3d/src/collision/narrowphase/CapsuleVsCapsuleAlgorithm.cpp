@@ -1,6 +1,6 @@
 /********************************************************************************
 * ReactPhysics3D physics library, http://www.reactphysics3d.com                 *
-* Copyright (c) 2010-2022 Daniel Chappuis                                       *
+* Copyright (c) 2010-2024 Daniel Chappuis                                       *
 *********************************************************************************
 *                                                                               *
 * This software is provided 'as-is', without any express or implied warranty.   *
@@ -189,7 +189,7 @@ bool CapsuleVsCapsuleAlgorithm::testCollision(NarrowPhaseInfoBatch& narrowPhaseI
 
                     const Vector3 normalWorld = narrowPhaseInfoBatch.narrowPhaseInfos[batchIndex].shape2ToWorldTransform.getOrientation() * closestPointsSeg1ToSeg2;
 
-                    decimal penetrationDepth = sumRadius - closestPointsDistance;
+                    decimal penetrationDepth = std::max(sumRadius - closestPointsDistance, MACHINE_EPSILON);
 
                     // Create the contact info object
                     narrowPhaseInfoBatch.addContactPoint(batchIndex, normalWorld, penetrationDepth, contactPointCapsule1Local, contactPointCapsule2Local);

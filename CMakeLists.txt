@@ -10,7 +10,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 把lua头文件添加到全局搜索路径
 include_directories(skynet/3rd/lua/
-                    3rd/core/sol/include/
                     3rd/core/common/ )
 
 # Linux
@@ -69,8 +68,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
         skynet/lualib-src/lua-stm.c
         skynet/lualib-src/lua-debugchannel.c
         skynet/lualib-src/lua-datasheet.c
-        skynet/lualib-src/lua-sharetable.c
-        )
+        skynet/lualib-src/lua-sharetable.c )
     add_library(skynetso SHARED ${LUA_CLIB_SKYNET_SRC})
     target_include_directories(skynetso PRIVATE skynet/skynet-src skynet/lualib-src)
     set_target_properties(skynetso PROPERTIES OUTPUT_NAME skynet)
@@ -165,15 +163,16 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     aux_source_directory(3rd/core/reactphysics3d/src/memory/ RP3D_memory_SRC)
     aux_source_directory(3rd/core/reactphysics3d/src/systems/ RP3D_systems_SRC)
     aux_source_directory(3rd/core/reactphysics3d/src/utils/ RP3D_utils_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/utils/quickhull/ RP3D_utils_quickhull_SRC)
     add_library(rp3d SHARED ${RP3D_SRC} ${RP3D_body_SRC} 
                 ${RP3D_collision_SRC}  ${RP3D_collision_broadphase_SRC}
                 ${RP3D_collision_narrowphase_SRC} ${RP3D_collision_narrowphase_GJK_SRC}
                 ${RP3D_collision_narrowphase_SAT_SRC} ${RP3D_collision_shapes_SRC}
                 ${RP3D_components_SRC} ${RP3D_constraint_SRC}
-                ${RP3D_engine_SRC} ${RP3D_mathematics_SRC} 
-                ${RP3D_memory_SRC} ${RP3D_systems_SRC} ${RP3D_utils_SRC} )
-    target_include_directories(rp3d PRIVATE 
-                3rd/core/reactphysics3d/include/
+                ${RP3D_engine_SRC} ${RP3D_mathematics_SRC}
+                ${RP3D_memory_SRC} ${RP3D_systems_SRC}
+                ${RP3D_utils_SRC} ${RP3D_utils_quickhull_SRC} )
+    target_include_directories(rp3d PRIVATE 3rd/core/reactphysics3d/include/
                 3rd/core/reactphysics3d/include/reactphysics3d/body/
                 3rd/core/reactphysics3d/include/reactphysics3d/collision/
                 3rd/core/reactphysics3d/include/reactphysics3d/collision/broadphase/
@@ -188,7 +187,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
                 3rd/core/reactphysics3d/include/reactphysics3d/mathematics/
                 3rd/core/reactphysics3d/include/reactphysics3d/memory/
                 3rd/core/reactphysics3d/include/reactphysics3d/systems/
-                3rd/core/reactphysics3d/include/reactphysics3d/utils/ )
+                3rd/core/reactphysics3d/include/reactphysics3d/utils/
+                3rd/core/reactphysics3d/include/reactphysics3d/utils/quickhull/ )
 
     # 生成动态库 logrus.so
     aux_source_directory(3rd/luaclib/lua-logrus LOGRUS_SRC)
@@ -197,7 +197,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     target_link_libraries(logrus m pthread dl)
 
     set_target_properties(lpeg sproto client md5 bson ltls
-        pb lfs fmt yyjson zset aoi navmesh math3d rp3d logrus
+        pb lfs fmt yyjson  
+        zset aoi navmesh math3d 
+        rp3d logrus
         PROPERTIES
         PREFIX ""
         SUFFIX .so
@@ -253,8 +255,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
         skynet/lualib-src/lua-stm.c
         skynet/lualib-src/lua-debugchannel.c
         skynet/lualib-src/lua-datasheet.c
-        skynet/lualib-src/lua-sharetable.c
-        )
+        skynet/lualib-src/lua-sharetable.c )
     message(STATUS "The value of LIB_SKYNET_SRC is: ${LIB_SKYNET_SRC}")
     add_library(skynetso SHARED ${LUA_CLIB_SKYNET_SRC})
     target_compile_definitions(skynetso PUBLIC LUA_LIB)
@@ -361,15 +362,16 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     aux_source_directory(3rd/core/reactphysics3d/src/memory/ RP3D_memory_SRC)
     aux_source_directory(3rd/core/reactphysics3d/src/systems/ RP3D_systems_SRC)
     aux_source_directory(3rd/core/reactphysics3d/src/utils/ RP3D_utils_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/utils/quickhull/ RP3D_utils_quickhull_SRC)
     add_library(rp3d SHARED ${RP3D_SRC} ${RP3D_body_SRC} 
                 ${RP3D_collision_SRC}  ${RP3D_collision_broadphase_SRC}
                 ${RP3D_collision_narrowphase_SRC} ${RP3D_collision_narrowphase_GJK_SRC}
                 ${RP3D_collision_narrowphase_SAT_SRC} ${RP3D_collision_shapes_SRC}
-                ${RP3D_components_SRC} ${RP3D_constraint_SRC} 
+                ${RP3D_components_SRC} ${RP3D_constraint_SRC}
                 ${RP3D_engine_SRC} ${RP3D_mathematics_SRC}
-                ${RP3D_memory_SRC} ${RP3D_systems_SRC} ${RP3D_utils_SRC} )
-    target_include_directories(rp3d PRIVATE 
-                3rd/core/reactphysics3d/include/
+                ${RP3D_memory_SRC} ${RP3D_systems_SRC}
+                ${RP3D_utils_SRC} ${RP3D_utils_quickhull_SRC} )
+    target_include_directories(rp3d PRIVATE 3rd/core/reactphysics3d/include/
                 3rd/core/reactphysics3d/include/reactphysics3d/body/
                 3rd/core/reactphysics3d/include/reactphysics3d/collision/
                 3rd/core/reactphysics3d/include/reactphysics3d/collision/broadphase/
@@ -384,7 +386,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
                 3rd/core/reactphysics3d/include/reactphysics3d/mathematics/
                 3rd/core/reactphysics3d/include/reactphysics3d/memory/
                 3rd/core/reactphysics3d/include/reactphysics3d/systems/
-                3rd/core/reactphysics3d/include/reactphysics3d/utils/ )
+                3rd/core/reactphysics3d/include/reactphysics3d/utils/
+                3rd/core/reactphysics3d/include/reactphysics3d/utils/quickhull/ )
     target_link_libraries(rp3d liblua)
 
     # 生成动态库 logrus.so
@@ -394,7 +397,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     target_link_libraries(logrus ws2_32 liblua libposix pthreadVC3)
 
     set_target_properties(lpeg sproto client md5 bson skynetso
-        pb lfs fmt yyjson zset aoi navmesh math3d rp3d logrus
+        pb lfs fmt yyjson  
+        zset aoi navmesh math3d 
+        rp3d logrus 
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
@@ -564,13 +569,15 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     aux_source_directory(3rd/core/reactphysics3d/src/memory/ RP3D_memory_SRC)
     aux_source_directory(3rd/core/reactphysics3d/src/systems/ RP3D_systems_SRC)
     aux_source_directory(3rd/core/reactphysics3d/src/utils/ RP3D_utils_SRC)
+    aux_source_directory(3rd/core/reactphysics3d/src/utils/quickhull/ RP3D_utils_quickhull_SRC)
     add_library(rp3d SHARED ${RP3D_SRC} ${RP3D_body_SRC} 
                 ${RP3D_collision_SRC}  ${RP3D_collision_broadphase_SRC}
                 ${RP3D_collision_narrowphase_SRC} ${RP3D_collision_narrowphase_GJK_SRC}
                 ${RP3D_collision_narrowphase_SAT_SRC} ${RP3D_collision_shapes_SRC}
                 ${RP3D_components_SRC} ${RP3D_constraint_SRC}
                 ${RP3D_engine_SRC} ${RP3D_mathematics_SRC}
-                ${RP3D_memory_SRC} ${RP3D_systems_SRC} ${RP3D_utils_SRC} )
+                ${RP3D_memory_SRC} ${RP3D_systems_SRC}
+                ${RP3D_utils_SRC} ${RP3D_utils_quickhull_SRC} )
     target_include_directories(rp3d PRIVATE 3rd/core/reactphysics3d/include/
                 3rd/core/reactphysics3d/include/reactphysics3d/body/
                 3rd/core/reactphysics3d/include/reactphysics3d/collision/
@@ -586,7 +593,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
                 3rd/core/reactphysics3d/include/reactphysics3d/mathematics/
                 3rd/core/reactphysics3d/include/reactphysics3d/memory/
                 3rd/core/reactphysics3d/include/reactphysics3d/systems/
-                3rd/core/reactphysics3d/include/reactphysics3d/utils/ )
+                3rd/core/reactphysics3d/include/reactphysics3d/utils/
+                3rd/core/reactphysics3d/include/reactphysics3d/utils/quickhull/ )
 
     # 生成动态库 logrus.so
     aux_source_directory(3rd/luaclib/lua-logrus LOGRUS_SRC)
@@ -595,7 +603,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     target_link_libraries(logrus m pthread dl)
 
     set_target_properties(lpeg sproto client md5 bson ltls
-        pb lfs fmt yyjson zset aoi navmesh math3d rp3d logrus
+        pb lfs fmt yyjson  
+        zset aoi navmesh math3d 
+        rp3d logrus
         PROPERTIES
         PREFIX ""
         SUFFIX .so
