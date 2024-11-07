@@ -4,11 +4,11 @@
 local lume = { _version = "2.3.0" }
 
 local pairs, ipairs = pairs, ipairs
-local type, assert, unpack = type, assert, unpack or table.unpack
+local type, assert, unpack = type, assert, table.unpack
 local tostring, tonumber = tostring, tonumber
 local math_floor = math.floor
 local math_ceil = math.ceil
-local math_atan2 = math.atan2 or math.atan
+local math_atan2 = math.atan
 local math_sqrt = math.sqrt
 local math_abs = math.abs
 
@@ -494,12 +494,12 @@ local serialize_map = {
     ["string"] = function(v) return string.format("%q", v) end,
     ["number"] = function(v)
         if v ~= v then
-            return "0/0"                       --  nan
+            return "0/0" --  nan
         elseif v == 1 / 0 then
-            return "1/0"                       --  inf
+            return "1/0" --  inf
         elseif v == -1 / 0 then
             return "-1/0"
-        end                                    -- -inf
+        end -- -inf
         return tostring(v)
     end,
     ["table"] = function(t, stk)
@@ -600,7 +600,7 @@ function lume.trace(...)
 end
 
 function lume.dostring(str)
-    return assert((loadstring or load)(str))()
+    return assert(load(str))()
 end
 
 function lume.uuid()
