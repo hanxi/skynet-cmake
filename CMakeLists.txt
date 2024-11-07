@@ -190,16 +190,14 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
                 3rd/core/reactphysics3d/include/reactphysics3d/utils/
                 3rd/core/reactphysics3d/include/reactphysics3d/utils/quickhull/ )
 
-    # 生成动态库 logrus.so
-    aux_source_directory(3rd/luaclib/lua-logrus LOGRUS_SRC)
-    add_library(logrus SHARED ${LOGRUS_SRC})
-    target_include_directories(logrus PRIVATE 3rd/core/spdlog/include/)
-    target_link_libraries(logrus m pthread dl)
+    # 生成动态库 lsyslog.so
+    aux_source_directory(3rd/luaclib/luasyslog SYSLOG_SRC)
+    add_library(lsyslog SHARED ${SYSLOG_SRC})
 
     set_target_properties(lpeg sproto client md5 bson ltls
         pb lfs fmt yyjson  
         zset aoi navmesh math3d 
-        rp3d logrus
+        rp3d lsyslog
         PROPERTIES
         PREFIX ""
         SUFFIX .so
@@ -390,16 +388,14 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
                 3rd/core/reactphysics3d/include/reactphysics3d/utils/quickhull/ )
     target_link_libraries(rp3d liblua)
 
-    # 生成动态库 logrus.so
-    aux_source_directory(3rd/luaclib/lua-logrus LOGRUS_SRC)
-    add_library(logrus SHARED ${LOGRUS_SRC})
-    target_include_directories(logrus PRIVATE 3rd/core/spdlog/include/)
-    target_link_libraries(logrus ws2_32 liblua libposix pthreadVC3)
+    # # 生成动态库 lsyslog.so
+    # aux_source_directory(3rd/luaclib/luasyslog SYSLOG_SRC)
+    # add_library(lsyslog SHARED ${SYSLOG_SRC})
 
     set_target_properties(lpeg sproto client md5 bson skynetso
         pb lfs fmt yyjson  
         zset aoi navmesh math3d 
-        rp3d logrus 
+        rp3d 
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
@@ -596,16 +592,14 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
                 3rd/core/reactphysics3d/include/reactphysics3d/utils/
                 3rd/core/reactphysics3d/include/reactphysics3d/utils/quickhull/ )
 
-    # 生成动态库 logrus.so
-    aux_source_directory(3rd/luaclib/lua-logrus LOGRUS_SRC)
-    add_library(logrus SHARED ${LOGRUS_SRC})
-    target_include_directories(logrus PRIVATE 3rd/core/spdlog/include/)
-    target_link_libraries(logrus m pthread dl)
+    # 生成动态库 lsyslog.so
+    aux_source_directory(3rd/luaclib/luasyslog SYSLOG_SRC)
+    add_library(lsyslog SHARED ${SYSLOG_SRC})
 
     set_target_properties(lpeg sproto client md5 bson ltls
         pb lfs fmt yyjson  
         zset aoi navmesh math3d 
-        rp3d logrus
+        rp3d lsyslog
         PROPERTIES
         PREFIX ""
         SUFFIX .so
