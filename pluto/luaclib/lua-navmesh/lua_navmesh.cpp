@@ -3,7 +3,7 @@
 
 #define METANAME "__lnavmesh"
 
-using navmesh_type = moon::navmesh;
+using navmesh_type = pluto::navmesh;
 
 // https://en.cppreference.com/w/cpp/language/if
 template <class>
@@ -55,7 +55,7 @@ static int load_static(lua_State *L)
 {
     auto meshfile = lua_check<std::string>(L, 1);
     std::string err;
-    if (moon::navmesh::load_static(meshfile, err))
+    if (pluto::navmesh::load_static(meshfile, err))
     {
         lua_pushboolean(L, 1);
         return 1;

@@ -10,7 +10,7 @@
 
 #include "rect.hpp"
 
-namespace moon
+namespace pluto
 {
 
     template <class AoiObject>
@@ -677,4 +677,4 @@ namespace moon
         std::vector<aoi_event> event_queue_;
     };
 
-} // namespace moon
+} // namespace pluto

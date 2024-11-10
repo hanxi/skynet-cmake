@@ -1,6 +1,6 @@
 #pragma once
 
-namespace moon {
+namespace pluto {
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
 inline T string_convert(const std::string_view& s, std::errc& ec) {
     T result;
@@ -167,45 +167,6 @@ std::vector<T> split(const std::string_view& src, const std::string_view& sep) {
     return r;
 }
 
-// inline std::string format(const char* fmt, ...) {
-//     if (!fmt)
-//         return std::string("");
-
-//     size_t fmt_buffer_size = 1024;
-
-//     std::string res;
-//     res.resize(fmt_buffer_size);
-
-//     va_list ap;
-//     va_start(ap, fmt);
-//     int len = moon_vsnprintf(res.data(), res.size(), fmt, ap);
-//     va_end(ap);
-//     if (len >= 0 && len <= static_cast<int>(res.size())) {
-//         res.resize(len);
-//         return res;
-//     } else {
-//         for (;;) {
-//             fmt_buffer_size *= 2;
-//             res.resize(fmt_buffer_size);
-//             va_start(ap, fmt);
-//             len = moon_vsnprintf(res.data(), res.size(), fmt, ap);
-//             va_end(ap);
-//             if (len < 0) {
-//                 continue;
-//             } else {
-//                 res.resize(len);
-//                 break;
-//             }
-//         }
-//     }
-
-//     if (len < 0) {
-//         std::cerr << "vsnprintf error :" << std::endl;
-//         return std::string("");
-//     }
-//     return res;
-// }
-
 //return left n char
 inline std::string left(const std::string& str, size_t n) {
     return std::string(str, 0, n);
@@ -366,4 +327,4 @@ struct iequal_string_functor {
 
 using iequal_string_functor_t = iequal_string_functor<std::string>;
 using iequal_string_view_functor_t = iequal_string_functor<std::string_view>;
-}; // namespace moon
+}; // namespace pluto

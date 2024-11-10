@@ -8,7 +8,7 @@
 #include <random>
 #include <unordered_map>
 
-namespace moon {
+namespace pluto {
 class skip_list_iterator_sentinel {};
 
 template<typename SkipListType>
@@ -486,4 +486,4 @@ private:
         allocator_type<std::pair<const int64_t, const context*>>>
         dict_;
 };
-} // namespace moon
+} // namespace pluto

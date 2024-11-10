@@ -17,7 +17,7 @@
 #include <DetourTileCacheBuilder.h>
 #include "fastlz.h"
 
-namespace moon
+namespace pluto
 {
     enum PolyAreas
     {
@@ -968,4 +968,4 @@ namespace moon
         std::string status_;
     };
 
-} // namespace moon
+} // namespace pluto

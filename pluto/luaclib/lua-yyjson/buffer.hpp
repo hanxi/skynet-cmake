@@ -10,7 +10,7 @@
 #include <utility>
 #include <vector>
 
-namespace moon {
+namespace pluto {
 template<typename ValueType>
 class buffer_iterator {
 public:
@@ -450,17 +450,10 @@ public:
 private:
     compressed_pair pair_;
 };
-}; // namespace moon
+}; // namespace pluto
 
-#ifdef MOON_ENABLE_MIMALLOC
-    #include "mimalloc.h"
-#endif
 
-namespace moon {
-#ifdef MOON_ENABLE_MIMALLOC
-using buffer = base_buffer<mi_stl_allocator<char>>;
-#else
+namespace pluto {
 using buffer = base_buffer<std::allocator<char>>;
-#endif
 constexpr size_t BUFFER_OPTION_CHEAP_PREPEND = 16;
-} // namespace moon
+} // namespace pluto

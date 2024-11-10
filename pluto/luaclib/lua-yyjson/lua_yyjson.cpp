@@ -9,35 +9,22 @@
 #include "string.hpp"
 #include "yyjson.h"
 
-using namespace moon;
 
 static void* json_malloc(void*, size_t size) {
-#ifdef MOON_ENABLE_MIMALLOC
-    return mi_malloc(size);
-#else
     return std::malloc(size);
-#endif
 }
 
 static void* json_realloc(void*, void* ptr, size_t, size_t size) {
-#ifdef MOON_ENABLE_MIMALLOC
-    return mi_realloc(ptr, size);
-#else
     return std::realloc(ptr, size);
-#endif
 }
 
 static void json_free(void*, void* ptr) {
-#ifdef MOON_ENABLE_MIMALLOC
-    mi_free(ptr);
-#else
     std::free(ptr);
-#endif
 }
 static const yyjson_alc allocator = { json_malloc, json_realloc, json_free, nullptr };
 
 using namespace std::literals::string_view_literals;
-using namespace moon;
+using namespace pluto;
 
 static constexpr std::string_view json_null = "null"sv;
 static constexpr std::string_view json_true = "true"sv;
@@ -119,7 +106,7 @@ static int json_options(lua_State* L) {
     size_t len = 0;
     const char* name = luaL_checklstring(L, 1, &len);
     int top = lua_gettop(L);
-    switch (moon::chash_string(name, len)) {
+    switch (pluto::chash_string(name, len)) {
         case "encode_empty_as_array"_csh: {
             bool v = cfg->empty_as_array;
             cfg->empty_as_array = static_cast<bool>(lua_toboolean(L, 2));
@@ -549,7 +536,7 @@ static int concat(lua_State* L) {
 
     json_config* cfg = json_fetch_config(L);
 
-    auto buf = new moon::buffer(cfg->concat_buffer_size);
+    auto buf = new pluto::buffer(cfg->concat_buffer_size);
     buf->commit(BUFFER_OPTION_CHEAP_PREPEND);
     try {
         int array_size = (int)lua_rawlen(L, 1);
@@ -664,7 +651,7 @@ static int concat_resp(lua_State* L) {
 
     json_config* cfg = json_fetch_config(L);
 
-    auto buf = new moon::buffer(cfg->concat_buffer_size);
+    auto buf = new pluto::buffer(cfg->concat_buffer_size);
     try {
         int64_t hash = 1;
         if (lua_type(L, 2) == LUA_TTABLE) {
@@ -686,7 +673,7 @@ static int concat_resp(lua_State* L) {
 
                 if (!hash_part.empty())
                     hash =
-                        static_cast<uint32_t>(moon::hash_range(hash_part.begin(), hash_part.end()));
+                        static_cast<uint32_t>(pluto::hash_range(hash_part.begin(), hash_part.end()));
             }
         }
 

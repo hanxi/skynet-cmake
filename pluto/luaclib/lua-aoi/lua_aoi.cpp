@@ -48,7 +48,7 @@ struct aoi_object
     }
 };
 
-using aoi_type = moon::aoi<aoi_object>;
+using aoi_type = pluto::aoi<aoi_object>;
 
 static int lrelease(lua_State *L)
 {

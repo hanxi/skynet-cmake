@@ -4,12 +4,7 @@
 
 #define METANAME "lzet"
 
-#ifdef MOON_ENABLE_MIMALLOC
-    #include "mimalloc.h"
-using zset_type = moon::zset<mi_stl_allocator>;
-#else
-using zset_type = moon::zset<std::allocator>;
-#endif
+using zset_type = pluto::zset<std::allocator>;
 
 static int lupdate(lua_State* L) {
     zset_type* zset = (zset_type*)lua_touserdata(L, 1);

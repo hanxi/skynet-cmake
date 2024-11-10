@@ -13,7 +13,7 @@
     #define HASH_ROTL32(x, r) (x << r) | (x >> (32 - r))
 #endif
 
-namespace moon {
+namespace pluto {
 namespace hash_detail {
     template<typename SizeT>
     inline void hash_combine_impl(SizeT& seed, SizeT value) {
@@ -92,7 +92,7 @@ inline std::size_t hash_value_unsigned(T val) {
 template<class T>
 inline void hash_combine(std::size_t& seed, T const& v) {
     std::hash<T> hasher;
-    return moon::hash_detail::hash_combine_impl(seed, hasher(v));
+    return pluto::hash_detail::hash_combine_impl(seed, hasher(v));
 }
 
 template<class It>
@@ -134,4 +134,4 @@ inline uint64_t chash_string(const std::string& s, uint64_t seed = 0) {
 inline constexpr uint64_t operator""_csh(const char* string, size_t len) {
     return chash_string(string, len);
 }
-} // namespace moon
+} // namespace pluto
