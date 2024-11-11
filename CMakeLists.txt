@@ -212,7 +212,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     message(STATUS "current platform: Windows")
     add_compile_definitions(NOUSE_JEMALLOC LUA_BUILD_AS_DLL)
 
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion -Wno-implicit-function-declaration -Wno-deprecated-declarations")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion -Wno-implicit-function-declaration -Wno-deprecated-declarations -Winconsistent-dllimport")
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
     # 把lua头文件添加到全局搜索路径

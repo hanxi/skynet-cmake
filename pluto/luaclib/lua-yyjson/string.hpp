@@ -226,13 +226,13 @@ inline char tolower(unsigned char c) {
     return static_cast<char>(std::tolower(c));
 }
 
-inline void upper(std::string& src) {
-    std::transform(src.begin(), src.end(), src.begin(), toupper);
-}
+// inline void upper(std::string& src) {
+//     std::transform(src.begin(), src.end(), src.begin(), toupper);
+// }
 
-inline void lower(std::string& src) {
-    std::transform(src.begin(), src.end(), src.begin(), tolower);
-}
+// inline void lower(std::string& src) {
+//     std::transform(src.begin(), src.end(), src.begin(), tolower);
+// }
 
 //! case insensitive
 inline bool iequal_string_locale(
