@@ -5,8 +5,8 @@
     {
       "type": "default",
       "project": "CMakeLists.txt",
-      "projectTarget": "skynet.exe",
-      "name": "skynet.exe",
+      "projectTarget": "skynet.exe (pluto\\skynet.exe)",
+      "name": "skynet.exe (pluto\\skynet.exe)",
       "args": [
         "examples\\config"
       ]
