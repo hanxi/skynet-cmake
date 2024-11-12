@@ -6,15 +6,18 @@ project(pluto)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD_REQUIRED ON) 
 
 # 把lua头文件添加到全局搜索路径
-include_directories( skynet/3rd/lua/ )
+include_directories(skynet/3rd/lua/)
 
 # Linux
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     message(STATUS "current platform: Linux")
     add_compile_definitions(NOUSE_JEMALLOC LUA_USE_LINUX LUA_USE_READLINE)
+
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -Wall ")
+    set(CMAKE_SHARED_LINKER_FLAGS " -fPIC --shared -Wl,-E")
 
     # 添加编译选项
     add_compile_options(-g)
@@ -34,6 +37,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
 
     # 重新设置动态库输出路径
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/cservice)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
     # 生成c服务
     file(GLOB CSERVICE_FILE_LIST "skynet/service-src/*.c")
@@ -50,6 +54,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
 
     # 重新设置动态库输出路径
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
     # 生成动态库 skynet.so
     set(LUA_CLIB_SKYNET_SRC
@@ -240,6 +245,10 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_executable(skynet skynet/skynet-src/skynet_main.c)
     target_link_libraries(skynet ws2_32 liblua libposix libskynet pthreadVC3)
 
+    # 重新设置动态库输出路径
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+
     # 生成动态库 skynet.so
     set(LUA_CLIB_SKYNET_SRC
         skynet/lualib-src/lua-skynet.c
@@ -401,11 +410,13 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
         zset aoi navmesh math3d 
         rp3d ecs 
         PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
-        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib
         PREFIX ""
         SUFFIX .so
     )
+
+    # 重新设置动态库输出路径
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/cservice)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
     # 生成c服务
     file(GLOB CSERVICE_FILE_LIST "skynet/service-src/*.c")
@@ -417,13 +428,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
         message(STATUS "The value of LIB_NAME is: ${LIB_NAME}")
         add_library(${LIB_NAME} SHARED ${FILE_PATH})
         target_link_libraries(${LIB_NAME} ws2_32 libskynet)
-        set_target_properties(${LIB_NAME} PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_BINARY_DIR}/cservice
-            LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/cservice
-            PREFIX ""
-            SUFFIX .so
-            ENABLE_EXPORTS ON
-            )
+        set_target_properties(${LIB_NAME} PROPERTIES PREFIX "" SUFFIX .so ENABLE_EXPORTS ON)
     endforeach()
 
 endif ()
@@ -433,7 +438,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     message(STATUS "current platform: Mac OS X")
     add_compile_definitions(NOUSE_JEMALLOC LUA_USE_MACOSX LUA_USE_READLINE)
 
-    set(CMAKE_C_FLAGS  " -O2 -Wall" )
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -Wall ")
     set(CMAKE_SHARED_LINKER_FLAGS " -fPIC -dynamiclib -Wl,-undefined,dynamic_lookup")
 
     # 添加编译选项
