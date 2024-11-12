@@ -33,28 +33,16 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     target_link_options(skynet PRIVATE "LINKER:-E")
     target_link_libraries(skynet m pthread dl rt)
 
+    set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/pluto)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     message(STATUS "The value of CMAKE_BINARY_DIR is: ${CMAKE_BINARY_DIR}")
-
-    # 重新设置动态库输出路径
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/cservice)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-
-    # 生成c服务
-    file(GLOB CSERVICE_FILE_LIST "skynet/service-src/*.c")
-    message(STATUS "The value of CSERVICE_FILE_LIST is: ${CSERVICE_FILE_LIST}")
-    foreach(FILE_PATH IN LISTS CSERVICE_FILE_LIST)
-        message(STATUS "Processing file: ${FILE_PATH}")
-        string(REGEX REPLACE ".*skynet/service-src/service_" "" LIB_NAME "${FILE_PATH}")
-        string(REGEX REPLACE ".c$" "" LIB_NAME "${LIB_NAME}")
-        message(STATUS "The value of LIB_NAME is: ${LIB_NAME}")
-        add_library(${LIB_NAME} SHARED ${FILE_PATH})
-        target_include_directories(${LIB_NAME} PRIVATE skynet/skynet-src)
-        set_target_properties(${LIB_NAME} PROPERTIES PREFIX "")
-    endforeach()
 
     # 重新设置动态库输出路径
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
     # 生成动态库 skynet.so
     set(LUA_CLIB_SKYNET_SRC
@@ -203,13 +191,31 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     add_library(ecs SHARED ${ECS_SRC})
 
     set_target_properties(lpeg sproto client md5 bson ltls
-        pb lfs fmt yyjson  
-        zset aoi navmesh math3d 
-        rp3d lsyslog ecs
+        pb lfs fmt yyjson zset aoi navmesh math3d rp3d lsyslog ecs
         PROPERTIES
         PREFIX ""
         SUFFIX .so
     )
+
+    # 重新设置动态库输出路径
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/cservice)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/cservice)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+    # 生成c服务
+    file(GLOB CSERVICE_FILE_LIST "skynet/service-src/*.c")
+    message(STATUS "The value of CSERVICE_FILE_LIST is: ${CSERVICE_FILE_LIST}")
+    foreach(FILE_PATH IN LISTS CSERVICE_FILE_LIST)
+        message(STATUS "Processing file: ${FILE_PATH}")
+        string(REGEX REPLACE ".*skynet/service-src/service_" "" LIB_NAME "${FILE_PATH}")
+        string(REGEX REPLACE ".c$" "" LIB_NAME "${LIB_NAME}")
+        message(STATUS "The value of LIB_NAME is: ${LIB_NAME}")
+        add_library(${LIB_NAME} SHARED ${FILE_PATH})
+        target_include_directories(${LIB_NAME} PRIVATE skynet/skynet-src)
+        set_target_properties(${LIB_NAME} PROPERTIES PREFIX "")
+    endforeach()
+
 endif ()
 
 # Windows
@@ -224,6 +230,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     include_directories(3rd/posix 3rd/pthread-win32 skynet/skynet-src)
     add_compile_options(/FI ${CMAKE_SOURCE_DIR}/3rd/posix/unistd.h)
 
+    set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/pluto)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     message(STATUS "The value of CMAKE_BINARY_DIR is: ${CMAKE_BINARY_DIR}")
 
     aux_source_directory(skynet/skynet-src LIB_SKYNET_SRC)
@@ -248,6 +257,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     # 重新设置动态库输出路径
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
     # 生成动态库 skynet.so
     set(LUA_CLIB_SKYNET_SRC
@@ -406,9 +417,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     target_link_libraries(ecs liblua)
 
     set_target_properties(lpeg sproto client md5 bson skynetso
-        pb lfs fmt yyjson  
-        zset aoi navmesh math3d 
-        rp3d ecs 
+        pb lfs fmt yyjson  zset aoi navmesh math3d rp3d ecs 
         PROPERTIES
         PREFIX ""
         SUFFIX .so
@@ -417,6 +426,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     # 重新设置动态库输出路径
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/cservice)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/cservice)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
     # 生成c服务
     file(GLOB CSERVICE_FILE_LIST "skynet/service-src/*.c")
@@ -444,8 +455,10 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     # 添加编译选项
     add_compile_options(-g)
 
+    set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/pluto)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     message(STATUS "The value of CMAKE_BINARY_DIR is: ${CMAKE_BINARY_DIR}")
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR})
 
     # 编译 skynet 可执行文件
     aux_source_directory(skynet/skynet-src SKYNET_SRC)
@@ -458,11 +471,11 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     target_link_options(skynet PRIVATE)
     target_link_libraries(skynet m pthread dl)
 
-    message(STATUS "The value of CMAKE_BINARY_DIR is: ${CMAKE_BINARY_DIR}")
-
     # 重新设置动态库输出路径
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
     # 生成动态库 skynet.so
     set(LUA_CLIB_SKYNET_SRC
@@ -610,9 +623,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     add_library(ecs SHARED ${ECS_SRC})
 
     set_target_properties(lpeg sproto client md5 bson ltls
-        pb lfs fmt yyjson  
-        zset aoi navmesh math3d 
-        rp3d lsyslog ecs 
+        pb lfs fmt yyjson zset aoi navmesh math3d rp3d lsyslog ecs 
         PROPERTIES
         PREFIX ""
         SUFFIX .so
@@ -621,6 +632,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     # 重新设置动态库输出路径
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/cservice)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/cservice)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
     # 生成c服务
     file(GLOB CSERVICE_FILE_LIST "skynet/service-src/*.c")
@@ -640,8 +653,8 @@ endif ()
 # 拷贝其他文件
 # CMAKE_SOURCE_DIR
 message(STATUS "The value of CMAKE_SOURCE_DIR is: ${CMAKE_SOURCE_DIR}")
-file(COPY ${CMAKE_SOURCE_DIR}/skynet/lualib/ DESTINATION lualib NO_SOURCE_PERMISSIONS)
-file(COPY ${CMAKE_SOURCE_DIR}/skynet/test/ DESTINATION test NO_SOURCE_PERMISSIONS)
-file(COPY ${CMAKE_SOURCE_DIR}/skynet/service/ DESTINATION service NO_SOURCE_PERMISSIONS)
-file(COPY ${CMAKE_SOURCE_DIR}/skynet/examples/ DESTINATION examples NO_SOURCE_PERMISSIONS)
-file(COPY ${CMAKE_SOURCE_DIR}/pluto/luaext/ DESTINATION luaext NO_SOURCE_PERMISSIONS)
+file(COPY ${CMAKE_SOURCE_DIR}/skynet/lualib/ DESTINATION pluto/lualib NO_SOURCE_PERMISSIONS)
+file(COPY ${CMAKE_SOURCE_DIR}/skynet/test/ DESTINATION pluto/test NO_SOURCE_PERMISSIONS)
+file(COPY ${CMAKE_SOURCE_DIR}/skynet/service/ DESTINATION pluto/service NO_SOURCE_PERMISSIONS)
+file(COPY ${CMAKE_SOURCE_DIR}/skynet/examples/ DESTINATION pluto/examples NO_SOURCE_PERMISSIONS)
+file(COPY ${CMAKE_SOURCE_DIR}/pluto/luaext/ DESTINATION pluto/luaext NO_SOURCE_PERMISSIONS)
