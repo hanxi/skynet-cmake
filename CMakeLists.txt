@@ -22,6 +22,12 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     # 添加编译选项
     add_compile_options(-g)
 
+    #设置输出目录
+    set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/pluto)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    message(STATUS "The value of CMAKE_BINARY_DIR is: ${CMAKE_BINARY_DIR}")
+
     # 编译 skynet 可执行文件
     aux_source_directory(skynet/skynet-src SKYNET_SRC)
     aux_source_directory(skynet/3rd/lua LUA_LIB_SRC)
@@ -32,11 +38,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     target_include_directories(skynet PRIVATE skynet/skynet-src)
     target_link_options(skynet PRIVATE "LINKER:-E")
     target_link_libraries(skynet m pthread dl rt)
-
-    set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/pluto)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-    message(STATUS "The value of CMAKE_BINARY_DIR is: ${CMAKE_BINARY_DIR}")
 
     # 重新设置动态库输出路径
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/luaclib)
@@ -226,14 +227,15 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion -Wno-implicit-function-declaration -Wno-deprecated-declarations -Winconsistent-dllimport")
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
-    # 把lua头文件添加到全局搜索路径
-    include_directories(3rd/posix 3rd/pthread-win32 skynet/skynet-src)
-    add_compile_options(/FI ${CMAKE_SOURCE_DIR}/3rd/posix/unistd.h)
-
+    #设置输出目录
     set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/pluto)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     message(STATUS "The value of CMAKE_BINARY_DIR is: ${CMAKE_BINARY_DIR}")
+
+    # 把lua头文件添加到全局搜索路径
+    include_directories(3rd/posix 3rd/pthread-win32 skynet/skynet-src)
+    add_compile_options(/FI ${CMAKE_SOURCE_DIR}/3rd/posix/unistd.h)
 
     aux_source_directory(skynet/skynet-src LIB_SKYNET_SRC)
     list(REMOVE_ITEM LIB_SKYNET_SRC skynet/skynet-src/skynet_main.c)
@@ -455,6 +457,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     # 添加编译选项
     add_compile_options(-g)
 
+    #设置输出目录
     set(CMAKE_BINARY_DIR ${CMAKE_BINARY_DIR}/pluto)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
