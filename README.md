@@ -42,4 +42,5 @@ cd build
 
 - [cloudfreexiao/skynet/tree/windows](https://github.com/cloudfreexiao/skynet/tree/windows)
 - [dpull/skynet-mingw](https://github.com/dpull/skynet-mingw)
+- [cloudfreexiao/pluto](https://github.com/cloudfreexiao/pluto)
 
