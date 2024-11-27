@@ -20,6 +20,8 @@ git submodule update --init --recursive
 ```
 
 使用 vs2022 打开此工程目录 skynet-cmake (即CMakeLists.txt 文件所在目录）。
+- 点击 [生成] -> [全部重新生成]
+- 选择 skynet.exe -> 点击 [调试]
 
 也可以执行 `build.bat` 脚本生成 `out/build/x64-debug/skynet.exe` 文件。
 
