@@ -4,5 +4,4 @@ call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build
 
 rmdir /s /q out
 cmake --preset x64-debug
-cd out/build/x64-debug
-cmake --build .
+cmake --build out/build/x64-debug
