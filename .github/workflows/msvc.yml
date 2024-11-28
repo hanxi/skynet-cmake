@@ -1,0 +1,23 @@
+# Workflow's name
+name: msvc
+
+# Run this workflow every time a new commit pushed to your repository
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.3.1
+
+    - name: Configure CMake
+      run: |
+        cmake --preset x64-debug
+
+    - name: Build
+      run: cmake --build out/build/x64-debug
